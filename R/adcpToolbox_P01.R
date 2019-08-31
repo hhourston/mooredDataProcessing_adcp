@@ -438,17 +438,6 @@ adpFlag <- function(adp,  pg = adp[['percentgd_threshold']], er= adp[['error_thr
   t <- adp[['time']]
   d <- t(matrix(dist, ncol = length(t), nrow = length(dist)))
   
-  #create matrix of maximum acceptable depth
-  r <- matrix(rmax, ncol=length(adp[['distance']]), nrow=length(rmax))
-
-  #read in pg per beam
-  g <- adp[['g', "numeric"]]
-  
-  #combine beam 1 and 4
-  lowpg <- g[,,1]+g[,,4]
-  
-  #extract error velocities
-  LERRAP01 <- adp[['v']][,,4]
   
   #create logical array of flagged values based on low percent good, high error velocity or surface contamination
   dim = dim(adp[['v']])
@@ -459,11 +448,20 @@ adpFlag <- function(adp,  pg = adp[['percentgd_threshold']], er= adp[['error_thr
     # as these are character variables.
     if (as.numeric(level) == 0 | as.numeric(level) == 1){
       flag[,,i] <- adp[['time']] < as.POSIXct(adp[['time_coverage_start']],tz='UTC') | adp[['time']] > as.POSIXct(adp[['time_coverage_end']],tz='UTC')
-    } else if (as.numeric(level) == 2){
+    } else if (as.numeric(level) >= 2){
+      #create matrix of maximum acceptable depth
+      r <- matrix(rmax, ncol=length(adp[['distance']]), nrow=length(rmax))
+      
+      #read in pg per beam
+      g <- adp[['g', "numeric"]]
+      
+      #combine beam 1 and 4
+      lowpg <- g[,,1]+g[,,4]
+      
+      #extract error velocities
+      LERRAP01 <- adp[['v']][,,4]
+      
       #original line of code
-      flag[,,i] <- (lowpg < pg) | (abs(LERRAP01) > er) | r < d | adp[['time']] < as.POSIXct(adp[['time_coverage_start']],tz='UTC') | adp[['time']] > as.POSIXct(adp[['time_coverage_end']],tz='UTC')
-      #This next chunk is theoretical as no processing higher than level 1 was conducted
-    } else if (as.numeric(level) > 2){
       flag[,,i] <- (lowpg < pg) | (abs(LERRAP01) > er) | r < d | adp[['time']] < as.POSIXct(adp[['time_coverage_start']],tz='UTC') | adp[['time']] > as.POSIXct(adp[['time_coverage_end']],tz='UTC')
     
     # H.Hourston Aug 22, 2019: not flagging twice
@@ -786,17 +784,19 @@ oceNc_create <- function(adp, name, metadata){
     b4_def <- ncvar_def('TNIHCE04', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_1"
-    cm1_def <- ncvar_def("CMAG_01", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm1_def <- ncvar_def("CMAGZZ01", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_2"
-    cm2_def <- ncvar_def("CMAG_02", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm2_def <- ncvar_def("CMAGZZ02", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_3"
-    cm3_def <- ncvar_def("CMAG_03", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm3_def <- ncvar_def("CMAGZZ03", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_4"
-    cm4_def <- ncvar_def("CMAG_04", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm4_def <- ncvar_def("CMAGZZ04", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
+    #H.Hourston Aug 29, 2019: Encountered a Sentinel V instrument without percent good data, so omit if the case
+    if (length(adp[['g']]) != 0){
     dlname <- "percent_good_beam_1"
     pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
@@ -808,6 +808,9 @@ oceNc_create <- function(adp, name, metadata){
     
     dlname <- "percent_good_beam_4"
     pg4_def <- ncvar_def('PCGDAP04', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    } else {
+      warning('No percent good data (g) detected; not creating percent good variables')
+    }
     
     dlname <- "pitch"
     p_def <- ncvar_def('PTCHGP01', "degrees", list( timedim,  stationdim), FillValue, dlname, prec = "float")
@@ -934,7 +937,12 @@ oceNc_create <- function(adp, name, metadata){
     
     ####writing net CDF####
     #write out definitions to new nc file
-    ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+    # condition if percent good beams exist
+    if (length(adp[['g']] != 0)){
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+    } else {
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+    }  
     #Includes all extra ancillary variables
     #ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def, qc_e_def, qc_ptch_def, qc_roll_def, qc_te90_def, qc_head_def, qc_D_def, qc_t_def, qc_b1_def, qc_b2_def, qc_b3_def, qc_b4_def, qc_pg1_def, qc_pg2_def, qc_pg3_def, qc_pg4_def, qc_hght_def, qc_lon_def, qc_lat_def, qc_pres_def, qc_svel_def, qc_ts_def, qc_cm1_def, qc_cm2_def, qc_cm3_def, qc_cm4_def), force_v4 = TRUE)
     # Has c('depth', 'te90', 'pitch', 'roll', 'heading') qc variables added but that's it
@@ -1003,10 +1011,14 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, cm2_def, adp[['q', 'numeric']][,,2])
     ncvar_put(ncout, cm3_def, adp[['q', 'numeric']][,,3])
     ncvar_put(ncout, cm4_def, adp[['q', 'numeric']][,,4])
+    
+    if (length(adp[['g']] != 0)){
     ncvar_put(ncout, pg1_def, adp[['g', 'numeric']][,,1])
     ncvar_put(ncout, pg2_def, adp[['g', 'numeric']][,,2])
     ncvar_put(ncout, pg3_def, adp[['g', 'numeric']][,,3])
     ncvar_put(ncout, pg4_def, adp[['g', 'numeric']][,,4])
+    }
+    
     ncvar_put(ncout, p_def, adp[['pitch']])
     ncvar_put(ncout, r_def, adp[['roll']]*(180/pi))
     ncvar_put(ncout, hght_def, (adp[['distance']] - adp[['sensor_depth']]))
@@ -1047,7 +1059,6 @@ oceNc_create <- function(adp, name, metadata){
   ncatt_put(ncout, 'time', attname = 'cf_role', attval = 'profile_id')
   ncatt_put(ncout, 'station', 'standard_name', 'platform_name')
   ncatt_put(ncout, 'time' , 'calendar', 'gregorian')
-  print('before note to time_string')
   ncatt_put(ncout, "DTUT8601", 'note', 'time values as ISO8601 string, YY-MM-DD hh:mm:ss')
   ncatt_put(ncout, "DTUT8601", 'time_zone', 'UTC')
   ncatt_put(ncout, 0, 'processing_history',adp[['processing_history']])
@@ -1179,6 +1190,7 @@ oceNc_create <- function(adp, name, metadata){
     #ncatt_put(ncout, 0, "chief_scientist", adp[['chief_scientist']]) #H.Hourston June 25, 2019
     #ncatt_put(ncout, 0, "delta_t_sec",as.double(adp[['sampling_interval']])) #H.Hourston June 21, 2019
     ncatt_put(ncout, 0, "pred_accuracy", adp[['velocityResolution']]*1000)
+    
     ncatt_put(ncout, "station", 'longitude', adp[['longitude']])
     ncatt_put(ncout, "station", 'latitude', adp[['latitude']])
     ncatt_put(ncout, 'DEPFP01', "xducer_offset_from_bottom", as.numeric(adp[['sounding']]) - adp[['sensor_depth']])
@@ -1207,18 +1219,20 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE04', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TNIHCE04', "sensor_depth", adp[['sensor_depth']])
     ncatt_put(ncout, 'TNIHCE04', "serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, "CMAG_01", "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, "CMAG_01", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAG_01", "serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, "CMAG_02", "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, "CMAG_02", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAG_02", "serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, "CMAG_03", "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, "CMAG_03", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAG_03", "serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, "CMAG_04", "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, "CMAG_04", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAG_04", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ01", "sensor_type", adp[['instrumentType']])
+    ncatt_put(ncout, "CMAGZZ01", "sensor_depth", adp[['sensor_depth']])
+    ncatt_put(ncout, "CMAGZZ01", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ02", "sensor_type", adp[['instrumentType']])
+    ncatt_put(ncout, "CMAGZZ02", "sensor_depth", adp[['sensor_depth']])
+    ncatt_put(ncout, "CMAGZZ02", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ03", "sensor_type", adp[['instrumentType']])
+    ncatt_put(ncout, "CMAGZZ03", "sensor_depth", adp[['sensor_depth']])
+    ncatt_put(ncout, "CMAGZZ03", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ04", "sensor_type", adp[['instrumentType']])
+    ncatt_put(ncout, "CMAGZZ04", "sensor_depth", adp[['sensor_depth']])
+    ncatt_put(ncout, "CMAGZZ04", "serial_number", adp[['serialNumber']])
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP00', "sensor_depth", adp[['sensor_depth']])
     ncatt_put(ncout, 'PCGDAP00', "serial_number", adp[['serialNumber']])
@@ -1231,6 +1245,8 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'PCGDAP04', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP04', "sensor_depth", adp[['sensor_depth']])
     ncatt_put(ncout, 'PCGDAP04', "serial_number", adp[['serialNumber']])
+    }
+    
     ncatt_put(ncout, 'HEADCM01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'HEADCM01', "sensor_depth", adp[['sensor_depth']])
     ncatt_put(ncout, 'HEADCM01', "serial_number", adp[['serialNumber']])
@@ -1248,14 +1264,18 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE02', "generic_name", "AGC")
     ncatt_put(ncout, 'TNIHCE03', "generic_name", "AGC")
     ncatt_put(ncout, 'TNIHCE04', "generic_name", "AGC")
-    ncatt_put(ncout, "CMAG_01", "generic_name", "CM")
-    ncatt_put(ncout, "CMAG_02", "generic_name", "CM")
-    ncatt_put(ncout, "CMAG_03", "generic_name", "CM")
-    ncatt_put(ncout, "CMAG_04", "generic_name", "CM")
+    ncatt_put(ncout, "CMAGZZ01", "generic_name", "CM")
+    ncatt_put(ncout, "CMAGZZ02", "generic_name", "CM")
+    ncatt_put(ncout, "CMAGZZ03", "generic_name", "CM")
+    ncatt_put(ncout, "CMAGZZ04", "generic_name", "CM")
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "generic_name", "PGd")
     ncatt_put(ncout, 'PCGDAP02', "generic_name", "PGd")
     ncatt_put(ncout, 'PCGDAP03', "generic_name", "PGd")
     ncatt_put(ncout, 'PCGDAP04', "generic_name", "PGd")
+    }
+    
     ncatt_put(ncout, 'DISTTRAN', "generic_name", "height")
     ncatt_put(ncout, 'DISTTRAN', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'DISTTRAN', "sensor_depth", adp[['sensor_depth']])
@@ -1375,10 +1395,19 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE02', 'legency_GF3_code', 'SDN:GF3::BEAM_02')
     ncatt_put(ncout, 'TNIHCE03', 'legency_GF3_code', 'SDN:GF3::BEAM_03')
     ncatt_put(ncout, 'TNIHCE04', 'legency_GF3_code', 'SDN:GF3::BEAM_04')
+    ncatt_put(ncout, 'CMAGZZ01', 'legency_GF3_code', 'SDN:GF3::CMAG_01')
+    ncatt_put(ncout, 'CMAGZZ02', 'legency_GF3_code', 'SDN:GF3::CMAG_02')
+    ncatt_put(ncout, 'CMAGZZ03', 'legency_GF3_code', 'SDN:GF3::CMAG_03')
+    ncatt_put(ncout, 'CMAGZZ04', 'legency_GF3_code', 'SDN:GF3::CMAG_04')
+    
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', 'legency_GF3_code', 'SDN:GF3::PGDP_01')
     ncatt_put(ncout, 'PCGDAP02', 'legency_GF3_code', 'SDN:GF3::PGDP_02')
     ncatt_put(ncout, 'PCGDAP03', 'legency_GF3_code', 'SDN:GF3::PGDP_03')
     ncatt_put(ncout, 'PCGDAP04', 'legency_GF3_code', 'SDN:GF3::PGDP_04')
+    }
+    
     ncatt_put(ncout, 'DISTTRAN', "legency_GF3_code", "SDN:GF3::HGHT") #ASLVMWHA
     ncatt_put(ncout, 'DEPFP01', 'legency_GF3_code', 'SDN:GF3::DEPH') #ADEPZZ01
     ncatt_put(ncout, 'TEMPPR01', 'legency_GF3_code', 'SDN:GF3::te90')
@@ -1430,10 +1459,18 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE02', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
     ncatt_put(ncout, 'TNIHCE03', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
     ncatt_put(ncout, 'TNIHCE04', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
+    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 1")
+    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
+    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
+    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 1")
     ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 2")
     ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 3")
     ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 4")
+    }
+    
     ncatt_put(ncout, 'DEPFP01', "sdn_parameter_name", "Depth below surface of the water body")
     ncatt_put(ncout, 'TEMPPR01', "sdn_parameter_name", "Temperature of the water body")
     ncatt_put(ncout, 'PTCHGP01', "sdn_parameter_name", "Orientation (pitch) of measurement platform by inclinometer")
@@ -1456,10 +1493,14 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE02', "sdn_uom_urn", "SDN:P06::UCNT")
     ncatt_put(ncout, 'TNIHCE03', "sdn_uom_urn", "SDN:P06::UCNT")
     ncatt_put(ncout, 'TNIHCE04', "sdn_uom_urn", "SDN:P06::UCNT")
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "sdn_uom_urn", "SDN:P06::UPCT")
     ncatt_put(ncout, 'PCGDAP02', "sdn_uom_urn", "SDN:P06::UPCT")
     ncatt_put(ncout, 'PCGDAP03', "sdn_uom_urn", "SDN:P06::UPCT")
     ncatt_put(ncout, 'PCGDAP04', "sdn_uom_urn", "SDN:P06::UPCT")
+    }
+    
     ncatt_put(ncout, 'DISTTRAN', "sdn_uom_urn", "SDN:P06::ULAA")
     ncatt_put(ncout, 'DEPFP01', "sdn_uom_urn", "SDN:P06:ULAA")
     ncatt_put(ncout, 'TEMPPR01', "sdn_uom_urn", "SDN:P06::UPAA")
@@ -1482,10 +1523,14 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE02', "sdn_uom_name", "Counts")
     ncatt_put(ncout, 'TNIHCE03', "sdn_uom_name", "Counts")
     ncatt_put(ncout, 'TNIHCE04', "sdn_uom_name", "Counts")
+    
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "sdn_uom_name", "Percent")
     ncatt_put(ncout, 'PCGDAP02', "sdn_uom_name", "Percent")
     ncatt_put(ncout, 'PCGDAP03', "sdn_uom_name", "Percent")
     ncatt_put(ncout, 'PCGDAP04', "sdn_uom_name", "Percent")
+    }
+    
     ncatt_put(ncout, 'DISTTRAN', "sdn_uom_name", "Metres")
     ncatt_put(ncout, 'DEPFP01', "sdn_uom_name", "Metres")
     ncatt_put(ncout, 'TEMPPR01', "sdn_uom_name", "Celsius degree")
@@ -1715,18 +1760,19 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE03', "data_max", max(adp[['a', 'numeric']][,,3], na.rm= TRUE))
     ncatt_put(ncout, 'TNIHCE04', "data_min", min(adp[['a', 'numeric']][,,4], na.rm= TRUE))
     ncatt_put(ncout, 'TNIHCE04', "data_max", max(adp[['a', 'numeric']][,,4], na.rm= TRUE))
-    ncatt_put(ncout, "CMAG_01", "data_min", min(adp[['q', 'numeric']][,,1], na.rm= TRUE))
-    ncatt_put(ncout, "CMAG_01", "data_max", max(adp[['q', 'numeric']][,,1], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ01", "data_min", min(adp[['q', 'numeric']][,,1], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ01", "data_max", max(adp[['q', 'numeric']][,,1], na.rm= TRUE))
     
-    ncatt_put(ncout, "CMAG_02", "data_min", min(adp[['q' ,'numeric']][,,2], na.rm= TRUE))
-    ncatt_put(ncout, "CMAG_02", "data_max", max(adp[['q', 'numeric']][,,2], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ02", "data_min", min(adp[['q' ,'numeric']][,,2], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ02", "data_max", max(adp[['q', 'numeric']][,,2], na.rm= TRUE))
     
-    ncatt_put(ncout, "CMAG_03", "data_min", min(adp[['q', 'numeric']][,,3], na.rm= TRUE))
-    ncatt_put(ncout, "CMAG_03", "data_max", max(adp[['q', 'numeric']][,,3], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ03", "data_min", min(adp[['q', 'numeric']][,,3], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ03", "data_max", max(adp[['q', 'numeric']][,,3], na.rm= TRUE))
     
-    ncatt_put(ncout, "CMAG_04", "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
-    ncatt_put(ncout, "CMAG_04", "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ04", "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
+    ncatt_put(ncout, "CMAGZZ04", "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
     
+    if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "data_min", min(adp[['g', 'numeric']][,,1], na.rm= TRUE))
     ncatt_put(ncout, 'PCGDAP00', "data_max", max(adp[['g', 'numeric']][,,1], na.rm= TRUE))# eg min 25 % good
     ncatt_put(ncout, 'PCGDAP02', "data_min", min(adp[['g', 'numeric']][,,2], na.rm= TRUE))
@@ -1735,6 +1781,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'PCGDAP03', "data_max", max(adp[['g', 'numeric']][,,3], na.rm= TRUE))
     ncatt_put(ncout, 'PCGDAP04', "data_min", min(adp[['g', 'numeric']][,,4], na.rm= TRUE))
     ncatt_put(ncout, 'PCGDAP04', "data_max", max(adp[['g', 'numeric']][,,4], na.rm= TRUE))
+    }
     # H.Hourston Aug 6, 2019: data_max for these variables minus ROLL were the fill value for some reason
     # ncatt_put(ncout, 'DISTTRAN', "data_min", min(adp[['depth', 'data']]))
     # ncatt_put(ncout, 'DISTTRAN', "data_max", max(adp[['depth', 'data']]))
@@ -2125,10 +2172,10 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
     PCGDAP00 <- a[['g', 'numeric']][,,1]
     PCGDAP02 <- a[['g', 'numeric']][,,2]
     PCGDAP03 <- a[['g', 'numeric']][,,3]
-    CMAG_01 <- a[['q', 'numeric']][,,1]
-    CMAG_02 <- a[['q', 'numeric']][,,2]
-    CMAG_03 <- a[['q', 'numeric']][,,3]
-    CMAG_04 <- a[['q', 'numeric']][,,4]
+    CMAGZZ01 <- a[['q', 'numeric']][,,1] 
+    CMAGZZ02 <- a[['q', 'numeric']][,,2]
+    CMAGZZ03 <- a[['q', 'numeric']][,,3]
+    CMAGZZ04 <- a[['q', 'numeric']][,,4]
     
     PTCH <- a[['pitch']]
     ROLL <- a[['roll']]
@@ -2204,10 +2251,10 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
     PCGDAP00[limitmat == 4] <- NA
     PCGDAP02[limitmat == 4] <- NA
     PCGDAP03[limitmat == 4] <- NA
-    CMAG_01[limitmat == 4] <- NA
-    CMAG_02[limitmat == 4] <- NA
-    CMAG_03[limitmat == 4] <- NA
-    CMAG_04[limitmat == 4] <- NA
+    CMAGZZ01[limitmat == 4] <- NA
+    CMAGZZ02[limitmat == 4] <- NA
+    CMAGZZ03[limitmat == 4] <- NA
+    CMAGZZ04[limitmat == 4] <- NA
     
     
     
@@ -2252,10 +2299,10 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
     #add correlation magnitude array
     qq <- array(dim = c(l, m, n))
     
-    qq[,,1] <- na.omit(CMAG_01[, 1:length(adp[['distance']])])
-    qq[,,2] <- na.omit(CMAG_02[, 1:length(adp[['distance']])])
-    qq[,,3] <- na.omit(CMAG_03[, 1:length(adp[['distance']])])
-    qq[,,4] <- na.omit(CMAG_04[, 1:length(adp[['distance']])])
+    qq[,,1] <- na.omit(CMAGZZ01[, 1:length(adp[['distance']])])
+    qq[,,2] <- na.omit(CMAGZZ02[, 1:length(adp[['distance']])])
+    qq[,,3] <- na.omit(CMAGZZ03[, 1:length(adp[['distance']])])
+    qq[,,4] <- na.omit(CMAGZZ04[, 1:length(adp[['distance']])])
     
     adp <- oceSetData(adp, 'q', qq, note = NULL)
     
@@ -2414,16 +2461,16 @@ adpNC <- function(adp, name){
   b4_def <- ncvar_def('TNIHCE04', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_correlation_magnitude_beam_1"
-  cm1_def <- ncvar_def("CMAG_01", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  cm1_def <- ncvar_def("CMAGZZ01", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_correlation_magnitude_beam_2"
-  cm2_def <- ncvar_def("CMAG_02", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  cm2_def <- ncvar_def("CMAGZZ02", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_correlation_magnitude_beam_3"
-  cm3_def <- ncvar_def("CMAG_03", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  cm3_def <- ncvar_def("CMAGZZ03", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_correlation_magnitude_beam_4"
-  cm4_def <- ncvar_def("CMAG_04", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  cm4_def <- ncvar_def("CMAGZZ04", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "percent_good_beam_1"
   pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
@@ -2623,18 +2670,18 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'TNIHCE04', "sensor_type", adp[['inst_type']])
   ncatt_put(ncout, 'TNIHCE04', "sensor_depth", adp[['sensor_depth']])
   ncatt_put(ncout, 'TNIHCE04', "serial_number", adp[['serial_number']])
-  ncatt_put(ncout, "CMAG_01", "sensor_type", adp[['inst_type']])
-  ncatt_put(ncout, "CMAG_01", "sensor_depth", adp[['sensor_depth']])
-  ncatt_put(ncout, "CMAG_01", "serial_number", adp[['serialNumber']])
-  ncatt_put(ncout, "CMAG_02", "sensor_type", adp[['inst_type']])
-  ncatt_put(ncout, "CMAG_02", "sensor_depth", adp[['sensor_depth']])
-  ncatt_put(ncout, "CMAG_02", "serial_number", adp[['serialNumber']])
-  ncatt_put(ncout, "CMAG_03", "sensor_type", adp[['inst_type']])
-  ncatt_put(ncout, "CMAG_03", "sensor_depth", adp[['sensor_depth']])
-  ncatt_put(ncout, "CMAG_03", "serial_number", adp[['serialNumber']])
-  ncatt_put(ncout, "CMAG_04", "sensor_type", adp[['inst_type']])
-  ncatt_put(ncout, "CMAG_04", "sensor_depth", adp[['sensor_depth']])
-  ncatt_put(ncout, "CMAG_04", "serial_number", adp[['serialNumber']])
+  ncatt_put(ncout, "CMAGZZ01", "sensor_type", adp[['inst_type']])
+  ncatt_put(ncout, "CMAGZZ01", "sensor_depth", adp[['sensor_depth']])
+  ncatt_put(ncout, "CMAGZZ01", "serial_number", adp[['serialNumber']])
+  ncatt_put(ncout, "CMAGZZ02", "sensor_type", adp[['inst_type']])
+  ncatt_put(ncout, "CMAGZZ02", "sensor_depth", adp[['sensor_depth']])
+  ncatt_put(ncout, "CMAGZZ02", "serial_number", adp[['serialNumber']])
+  ncatt_put(ncout, "CMAGZZ03", "sensor_type", adp[['inst_type']])
+  ncatt_put(ncout, "CMAGZZ03", "sensor_depth", adp[['sensor_depth']])
+  ncatt_put(ncout, "CMAGZZ03", "serial_number", adp[['serialNumber']])
+  ncatt_put(ncout, "CMAGZZ04", "sensor_type", adp[['inst_type']])
+  ncatt_put(ncout, "CMAGZZ04", "sensor_depth", adp[['sensor_depth']])
+  ncatt_put(ncout, "CMAGZZ04", "serial_number", adp[['serialNumber']])
   ncatt_put(ncout, 'PCGDAP00', "sensor_type", adp[['inst_type']])
   ncatt_put(ncout, 'PCGDAP00', "sensor_depth", adp[['sensor_depth']])
   ncatt_put(ncout, 'PCGDAP00', "serial_number", adp[['serial_number']])
@@ -2662,10 +2709,10 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'TNIHCE02', "generic_name", "AGC")
   ncatt_put(ncout, 'TNIHCE03', "generic_name", "AGC")
   ncatt_put(ncout, 'TNIHCE04', "generic_name", "AGC")
-  ncatt_put(ncout, "CMAG_01", "generic_name", "CM")
-  ncatt_put(ncout, "CMAG_02", "generic_name", "CM")
-  ncatt_put(ncout, "CMAG_03", "generic_name", "CM")
-  ncatt_put(ncout, "CMAG_04", "generic_name", "CM")
+  ncatt_put(ncout, "CMAGZZ01", "generic_name", "CM")
+  ncatt_put(ncout, "CMAGZZ02", "generic_name", "CM")
+  ncatt_put(ncout, "CMAGZZ03", "generic_name", "CM")
+  ncatt_put(ncout, "CMAGZZ04", "generic_name", "CM")
   ncatt_put(ncout, 'PCGDAP00', "generic_name", "PGd")
   ncatt_put(ncout, 'PCGDAP02', "generic_name", "PGd")
   ncatt_put(ncout, 'PCGDAP03', "generic_name", "PGd")
@@ -2790,14 +2837,15 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'LCNSAP01_QC', "sdn_parameter_name", "QC flag")
   ncatt_put(ncout, 'LRZAAP01_QC', "sdn_parameter_name", "QC flag")
   #
-  ncatt_put(ncout, 'TNIHCE01', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 1")
-  ncatt_put(ncout, 'TNIHCE02', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
-  ncatt_put(ncout, 'TNIHCE03', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
-  ncatt_put(ncout, 'TNIHCE04', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
-  ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 1")
-  ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 2")
-  ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 3")
-  ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 4")
+  ncatt_put(ncout, 'TNIHCE01', "sdn_parameter_name", "Echo intensity of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 1")
+  ncatt_put(ncout, 'TNIHCE02', "sdn_parameter_name", "Echo intensity of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
+  ncatt_put(ncout, 'TNIHCE03', "sdn_parameter_name", "Echo intensity of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
+  ncatt_put(ncout, 'TNIHCE04', "sdn_parameter_name", "Echo intensity of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
+  ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 1")
+  ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
+  ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
+  ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
+  
   ncatt_put(ncout, 'DEPFP01', "sdn_parameter_name", "Depth below surface of the water body")
   ncatt_put(ncout, 'TEMPPR01', "sdn_parameter_name", "Temperature of the water body")
   ncatt_put(ncout, 'PTCHGP01', "sdn_parameter_name", "Orientation (pitch) of measurement platform by inclinometer")
@@ -2915,17 +2963,17 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'TNIHCE04', "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
   ncatt_put(ncout, 'TNIHCE04', "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
   
-  ncatt_put(ncout, "CMAG_01", "data_min", min(adp[['q', 'numeric']][,,1], na.rm= TRUE))
-  ncatt_put(ncout, "CMAG_01", "data_max", max(adp[['q', 'numeric']][,,1], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ01", "data_min", min(adp[['q', 'numeric']][,,1], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ01", "data_max", max(adp[['q', 'numeric']][,,1], na.rm= TRUE))
   
-  ncatt_put(ncout, "CMAG_02", "data_min", min(adp[['q' ,'numeric']][,,2], na.rm= TRUE))
-  ncatt_put(ncout, "CMAG_02", "data_max", max(adp[['q', 'numeric']][,,2], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ02", "data_min", min(adp[['q' ,'numeric']][,,2], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ02", "data_max", max(adp[['q', 'numeric']][,,2], na.rm= TRUE))
   
-  ncatt_put(ncout, "CMAG_03", "data_min", min(adp[['q', 'numeric']][,,3], na.rm= TRUE))
-  ncatt_put(ncout, "CMAG_03", "data_max", max(adp[['q', 'numeric']][,,3], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ03", "data_min", min(adp[['q', 'numeric']][,,3], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ03", "data_max", max(adp[['q', 'numeric']][,,3], na.rm= TRUE))
   
-  ncatt_put(ncout, "CMAG_04", "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
-  ncatt_put(ncout, "CMAG_04", "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ04", "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
+  ncatt_put(ncout, "CMAGZZ04", "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
   
   
   ncatt_put(ncout, 'PCGDAP00', "data_min", min(adp[['g', 'numeric']][,,1], na.rm= TRUE))
