@@ -3704,11 +3704,11 @@ startPlots <- function(adp, path){
   
   #general first look plots
   pdf( file = paste0(plotpath, '/PreProcessingPlots.pdf'))
-  plot(adp, which = 1, title = 'LCEWAP01_QC: PreProcessing')  #u
+  plot(adp, which = 1, title = 'LCEWAP01: PreProcessing')  #u
   mtext('m/s', side = 4)
-  plot(adp, which = 2, title = 'LCNSAP01_QC: PreProcessing')  #v
+  plot(adp, which = 2, title = 'LCNSAP01: PreProcessing')  #v
   mtext('m/s', side = 4)
-  plot(adp, which = 3, title = 'LRZAAP01_QC: PreProcessing')  #w
+  plot(adp, which = 3, title = 'LRZAAP01: PreProcessing')  #w
   mtext('m/s', side = 4)
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (all(is.na(adp[['v']][,,4]))){
