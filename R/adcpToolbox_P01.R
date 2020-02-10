@@ -26,11 +26,7 @@ read.adp.easy <- function(file, metadata){
   if (missing(metadata)){
     warning('no metadata supplied')
   }
-  #metad <- read.csv(metadata, header = TRUE)
-  #H.Hourston Feb 6, 2020: RStudio on Ubuntu can't find files from full path with read.csv()
-  # so must navigate to exact directory of the file
-  setwd(paste0('/', dirname(metadata), '/'))  
-  metad <- read.csv(basename(metadata), header = TRUE)
+  metad <- read.csv(metadata, header = TRUE)
   
   mn <- as.character(metad[,1])
   mv <- as.character(metad[,2])
@@ -39,10 +35,7 @@ read.adp.easy <- function(file, metadata){
   md <- as.list(mv)
   names(md) <- mn
   
-  #adp <- read.adp(file, latitude = as.numeric(md[['latitude']]), longitude = as.numeric(md[['longitude']]) ) #insert lat and lon from mooring logs
-  #H.Hourston Feb 6, 2020: Navigate to directory of raw ADCP file to find it
-  setwd(paste0('/', dirname(file), '/'))
-  adp <- read.adp(basename(file), latitude = as.numeric(md[['latitude']]), longitude = as.numeric(md[['longitude']]) ) #insert lat and lon from mooring logs
+  adp <- read.adp(file, latitude = as.numeric(md[['latitude']]), longitude = as.numeric(md[['longitude']]) ) #insert lat and lon from mooring logs
   
   if (!missing(md)) {
     for (m in seq_along(md)) {
