@@ -1393,7 +1393,8 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "source", "R code: adcpProcess, github:")
     ncatt_put(ncout, 0, "date_modified", as.character(as.POSIXct(Sys.time(), format = '%Y-%m-%d %H:%M:%sZ', tz = 'UTC')))
     ncatt_put(ncout, 0, "_FillValue", "1e35")
-    ncatt_put(ncout, 0, "featureType", adp[['featureType']]) #link to oce object? ..... if adp == timeSeriesProfile
+    # H.Hourston Feb 13, 2020: Change featureType to be hardcoded in
+    ncatt_put(ncout, 0, "featureType", 'profileTimeSeries') #link to oce object? ..... if adp == timeSeriesProfile
 
     #BODC P01 names
     #H.Hourston June 26, 2019: Change all IODC GF3 variable names to P01 variable names in a copy
@@ -1591,7 +1592,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']])
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
-    ncatt_put(ncout, 0, "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 0, "instrument_serial_number", adp[['serialNumber']])
     
     #deprecated --- Diana Cardoso 06/01/2018
     #ncatt_put(ncout, 0, "transform", adp[['oceCoordinate']])
@@ -1674,7 +1675,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "source", "R code: adcpProcess, github:") #Change? H.Hourston June 28, 2019
     ncatt_put(ncout, 0, "date_modified", as.character(as.POSIXct(Sys.time(), format = '%Y-%m-%d %H:%M:%sZ', tz = 'UTC')))
     ncatt_put(ncout,0, "_FillValue", "1e35")
-    ncatt_put(ncout, 0, "featureType", adp[['featureType']]) #link to oce object? ..... if adp == timeSeriesProfile
+    ncatt_put(ncout, 0, "featureType", "profileTimeSeries") #link to oce object? ..... if adp == timeSeriesProfile
     
     #BODC P01 names
     ncatt_put(ncout, 'LCEWAP01', "sdn_parameter_urn", "SDN:P01::LCEWAP01")
@@ -1987,7 +1988,7 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
     #time_between_ping_groups <- a[['']]
     transmit_pulse_length_cm <-( a[['xmitPulseLength']]*100)
     false_target_reject_values <- a[['falseTargetThresh']]
-    serial_number <- a[['serialNumber']]
+    instrument_serial_number <- a[['serialNumber']]
     data_type <- a[['instrumentType']]
     bin1Distance <- a[['bin1Distance']]
     
@@ -2005,7 +2006,7 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
     #adp <- oceSetMetadata(adp, 'time_between_ping_groups', , note = NULL)
     adp <- oceSetMetadata(adp, 'transmit_pulse_length_cm', transmit_pulse_length_cm, note = NULL)
     adp <- oceSetMetadata(adp, 'false_target_reject_values', false_target_reject_values, note = NULL)
-    adp <- oceSetMetadata(adp, 'serial_number', serial_number, note = NULL)
+    adp <- oceSetMetadata(adp, 'instrument_serial_number', instrument_serial_number, note = NULL)
     adp <- oceSetMetadata(adp, 'data_type', data_type, note = NULL)
     adp <- oceSetMetadata(adp, 'bin1Distance', bin1Distance, note = NULL)
     
@@ -2027,7 +2028,7 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
       error_velocity_threshold <- ncatt_get(ni, 0, 'error_velocity_threshold')
       transmit_pulse_length_cm <- ncatt_get(ni, 0, 'transmit_pulse_length_cm')
       false_target_reject_values <- ncatt_get(ni, 0, 'false_target_reject_values')
-      serial_number <- ncatt_get(ni, 0, 'ADCP_serial_number')
+      instrument_serial_number <- ncatt_get(ni, 0, 'ADCP_serial_number')
       data_type <- ncatt_get(ni, 0, 'DATA_TYPE')
       
       depth <- FALSE
@@ -2056,7 +2057,7 @@ adpCombine <- function(adp, raw, ncin = '', dt = NULL){
       #adp <- oceSetMetadata(adp, 'time_between_ping_groups', , note = NULL)
       adp <- oceSetMetadata(adp, 'transmit_pulse_length_cm', transmit_pulse_length_cm$value, note = NULL)
       adp <- oceSetMetadata(adp, 'false_target_reject_values', false_target_reject_values$value, note = NULL)
-      adp <- oceSetMetadata(adp, 'serial_number', serial_number$value, note = NULL)
+      adp <- oceSetMetadata(adp, 'instrument_serial_number', serial_number$value, note = NULL)
       adp <- oceSetMetadata(adp, 'data_type', data_type$value, note = NULL)
       
       adp <- oceSetMetadata(adp, 'bin1Distance', adp[['cellSize']]/2, note = NULL)
@@ -2509,7 +2510,7 @@ adpNC <- function(adp, name){
   te90_def <- ncvar_def('TEMPPR01', "degrees", list( timedim , stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "instrument depth"
-  D_def <- ncvar_def('DEPFP01', "m", list(timedim, stationdim), FillValue, dlname, prec = "float")
+  D_def <- ncvar_def('PPSAADCP', "m", list(timedim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "heading"
   head_def <- ncvar_def('HEADCM01', "degrees", list(timedim, stationdim), FillValue, dlname, prec = "float")
@@ -2622,7 +2623,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 0, "error_velocity_threshold", paste0(adp[['error_velocity_threshold']], "   mm/s"))
   ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['transmit_pulse_length_cm']])
   ncatt_put(ncout, 0, "false_target_reject_values", adp[['false_target_reject_values']])
-  ncatt_put(ncout, 0, "serial_number", adp[['serial_number']])
+  ncatt_put(ncout, 0, "instrument_serial_number", adp[['serial_number']])
   
   #     deprecated --- Diana Cardoso 06/01/2018
   #ncatt_put(ncout, 0, "transform", adp[['transform']])
@@ -2655,8 +2656,8 @@ adpNC <- function(adp, name){
   
   ####variables####
   
-  ncatt_put(ncout, 'DEPFP01', "xducer_offset_from_bottom", adp[['xducer_offset_from_bottom']])
-  ncatt_put(ncout, 'DEPFP01', "bin_size", adp[['bin_size']])
+  ncatt_put(ncout, 'PPSAADCP', "xducer_offset_from_bottom", adp[['xducer_offset_from_bottom']])
+  ncatt_put(ncout, 'PPSAADCP', "bin_size", adp[['bin_size']])
   
   ncatt_put(ncout, 'LCEWAP01', "sensor_type", adp[['inst_type']])
   ncatt_put(ncout, 'LCEWAP01', "sensor_depth", adp[['sensor_depth']])
@@ -2788,7 +2789,7 @@ adpNC <- function(adp, name){
   # ncatt_put(ncout, 0, "project", adp[['project']])
   #Notes from Mathieu O. - this is better as individual variable attribute
   #ncatt_put(ncout,0, "_FillValue", "1e35")
-  ncatt_put(ncout, 0, "featureType", adp[['featureType']])
+  ncatt_put(ncout, 0, "featureType", "profileTimeSeries")
   ncatt_put(ncout, 0, "date_modified", as.character(as.POSIXct(Sys.time(), format = '%Y-%m-%d %H:%M:%sZ', tz = 'UTC')))
   
   #added meta to meet conventions (not found in archive) #to be inserted manually
@@ -2858,7 +2859,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
   ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
   
-  ncatt_put(ncout, 'DEPFP01', "sdn_parameter_name", "Depth below surface of the water body")
+  ncatt_put(ncout, 'PPSAADCP', "sdn_parameter_name", "Depth below surface of the water body")
   ncatt_put(ncout, 'TEMPPR01', "sdn_parameter_name", "Temperature of the water body")
   ncatt_put(ncout, 'PTCHGP01', "sdn_parameter_name", "Orientation (pitch) of measurement platform by inclinometer")
   ncatt_put(ncout, 'ROLLGP01', "sdn_parameter_name", "Orientation (roll angle) of measurement platform by inclinometer (second sensor)")
@@ -2884,7 +2885,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'PCGDAP03', "sdn_uom_urn", "SDN:P06::UPCT")
   ncatt_put(ncout, 'PCGDAP04', "sdn_uom_urn", "SDN:P06::UPCT")
   ncatt_put(ncout, 'DISTTRAN', "sdn_uom_urn", "SDN:P06::ULAA")
-  ncatt_put(ncout, 'DEPFP01', "sdn_uom_urn", "SDN:P06::ULAA")
+  ncatt_put(ncout, 'PPSAADCP', "sdn_uom_urn", "SDN:P06::ULAA")
   ncatt_put(ncout, 'TEMPPR01', "sdn_uom_urn", "SDN:P06::UPAA")
   ncatt_put(ncout, 'PTCHGP01', "sdn_uom_urn", "SDN:P06:UAAA")
   ncatt_put(ncout, 'ROLLGP01', "sdn_uom_urn", "SDN:P06:UAAA")
@@ -2909,7 +2910,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 'PCGDAP03', "sdn_uom_name", "Percent")
   ncatt_put(ncout, 'PCGDAP04', "sdn_uom_name", "Percent")
   ncatt_put(ncout, 'DISTTRAN', "sdn_uom_name", "Metres")
-  ncatt_put(ncout, 'DEPFP01', "sdn_uom_name", "Metres")
+  ncatt_put(ncout, 'PPSAADCP', "sdn_uom_name", "Metres")
   ncatt_put(ncout, 'TEMPPR01', "sdn_uom_name", "Celsius degree")
   ncatt_put(ncout, 'PTCHGP01', "sdn_uom_name", "Degrees")
   ncatt_put(ncout, 'ROLLGP01', "sdn_uom_name", "Degrees")
