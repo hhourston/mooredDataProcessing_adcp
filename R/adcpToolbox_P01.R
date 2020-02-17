@@ -749,12 +749,21 @@ oceNc_create <- function(adp, name, metadata){
   if (adp@metadata$source == 'raw'){
     
     #define variables
+    dlname <- 'filename'
+    fn_def <- ncvar_def(units = '', dim = stationdim, name = dlname, prec = 'char') #optional "longname" argument omitted
+    
     print('setting lon and lat definitions')
     dlname <- 'longitude'
     lon_def <- ncvar_def(longname= dlname, units = 'degrees_east', dim = stationdim, name = 'ALONZZ01', prec = 'double')
     
     dlname <- 'latitude'
     lat_def <- ncvar_def( longname = dlname, units = 'degrees_north', dim =  stationdim, name = 'ALATZZ01', prec = 'double')
+    
+    dlname <- 'longitude'
+    lon2_def <- ncvar_def(units = 'degrees_east', dim = stationdim, name = dlname, prec = 'double')
+    
+    dlname <- 'latitude'
+    lat2_def <- ncvar_def(units = 'degrees_north', dim =  stationdim, name = dlname, prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
     u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
@@ -946,9 +955,9 @@ oceNc_create <- function(adp, name, metadata){
     #write out definitions to new nc file
     # condition if percent good beams exist
     if (length(adp[['g']] != 0)){
-      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
     } else {
-      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
     }  
     #Includes all extra ancillary variables
     #ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def, qc_e_def, qc_ptch_def, qc_roll_def, qc_te90_def, qc_head_def, qc_D_def, qc_t_def, qc_b1_def, qc_b2_def, qc_b3_def, qc_b4_def, qc_pg1_def, qc_pg2_def, qc_pg3_def, qc_pg4_def, qc_hght_def, qc_lon_def, qc_lat_def, qc_pres_def, qc_svel_def, qc_ts_def, qc_cm1_def, qc_cm2_def, qc_cm3_def, qc_cm4_def), force_v4 = TRUE)
@@ -1006,6 +1015,9 @@ oceNc_create <- function(adp, name, metadata){
   ncvar_put(ncout, t_def, as.POSIXct(adp[['time']], tz = 'UTC', origin = '1970-01-01 00:00:00'))
   ncvar_put(ncout, lon_def, adp[['longitude']])
   ncvar_put(ncout, lat_def, adp[['latitude']])
+  ncvar_put(ncout, lon2_def, adp[['longitude']])
+  ncvar_put(ncout, lat2_def, adp[['latitude']])
+  ncvar_put(ncout, fn_def, ncname)
   
   if (adp@metadata$source == 'raw'){
     # Assign data values to the variables
@@ -1435,35 +1447,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'DTUT8601', 'legency_GF3_code', 'SDN:GF3::time_string')
     
     
-    # GF3: Comment out?
-    # ncatt_put(ncout, 'LCEWAP01', "sdn_parameter_urn", "SDN:P01::LCEWAP01")
-    # ncatt_put(ncout, 'LCNSAP01', "sdn_parameter_urn", "SDN:P01::LCNSAP01")
-    # ncatt_put(ncout, 'LRZAAP01', "sdn_parameter_urn", "SDN:P01::LRZAAP01")
-    # ncatt_put(ncout, 'LERRAP01', "sdn_parameter_urn", "SDN:P01::LERRAP01")
-    # ncatt_put(ncout, 'TNIHCE01', "sdn_parameter_urn", "SDN:P01::TNIHCE01")
-    # ncatt_put(ncout, 'TNIHCE02', "sdn_parameter_urn", "SDN:P01::TNIHCE02")
-    # ncatt_put(ncout, 'TNIHCE03', "sdn_parameter_urn", "SDN:P01::TNIHCE03")
-    # ncatt_put(ncout, 'TNIHCE04', "sdn_parameter_urn", "SDN:P01::TNIHCE04")
-    # ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_urn", "SDN:P01::PCGDAP00")
-    # ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_urn", "SDN:P01::PCGDAP02")
-    # ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_urn", "SDN:P01::PCGDAP03")
-    # ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_urn", "SDN:P01::PCGDAP04")
-    # #ncatt_put(ncout, 'DISTTRAN', "sdn_parameter_urn", "SDN:P01::")
-    # ncatt_put(ncout, 'PPSAADCP', "sdn_parameter_urn", "SDN:P01::ADEPZZ01")
-    # ncatt_put(ncout, 'TEMPPR01', "sdn_parameter_urn", "SDN:P01::TEMPPR01")
-    # #ncatt_put(ncout, "time_02", "sdn_parameter_urn", "SDN:P01::")
-    # ncatt_put(ncout, 'PTCHGP01', "sdn_parameter_urn", "SDN:P01::PTCHEI01")
-    # ncatt_put(ncout, 'ROLLGP01', "sdn_parameter_urn", "SDN:P01::ROLLFEI01")
-    # ncatt_put(ncout, 'ALONZZ01', "sdn_parameter_urn", "SDN:P01::ALONZZ01")
-    # ncatt_put(ncout, 'ALATZZ01', "sdn_parameter_urn", "SDN:P01::ALATZZ01")
-    # ncatt_put(ncout, 'HEADCM01', "sdn_parameter_urn", "SDN:P01::HEADCM01")
-    # ncatt_put(ncout, 'PRESPR01', "sdn_parameter_urn", "SDN:P01::PRESPR01")
-    # ncatt_put(ncout, 'SVELCV01', "sdn_parameter_urn", "SDN:P01::SVELCV01")
-    # ncatt_put(ncout, "ELTMEP01", "sdn_parameter_urn", "SDN:P01::ELTMEP01")
-    # ncatt_put(ncout, "time_string", "sdn_parameter_urn", "SDN:P01::DTUT8601")
-    
-    
-    
+    # sdn_parameter_names
     ncatt_put(ncout, 'LCEWAP01', "sdn_parameter_name", "Eastward current velocity (Eulerian measurement) in the water body by moored acoustic doppler current profiler (ADCP)")
     ncatt_put(ncout, 'LCNSAP01', "sdn_parameter_name", "Northward current velocity (Eulerian measurement) in the water body by moored acoustic doppler current profiler (ADCP)")
     ncatt_put(ncout, 'LRZAAP01', "sdn_parameter_name", "Upward current velocity in the water body by moored acoustic doppler current profiler (ADCP)")
@@ -1495,8 +1479,6 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'SVELCV01', "sdn_parameter_name", "Sound velocity in the water body by computation from temperature and salinity by unspecified algorithm")
     ncatt_put(ncout, 'ELTMEP01', "sdn_parameter_name", "Elapsed time (since 1970-01-01T00:00:00Z)")
     ncatt_put(ncout, 'DTUT8601', "sdn_parameter_name", "String corresponding to format 'YYYY-MM-DDThh:mm:ss.sssZ' or other valid ISO8601 string")
-    
-    
     
     ncatt_put(ncout, 'LCEWAP01', "sdn_uom_urn", "SDN:P06::UVAA")
     ncatt_put(ncout, 'LCNSAP01', "sdn_uom_urn", "SDN:P06::UVAA")
@@ -1557,6 +1539,12 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "ELTMEP01", "sdn_uom_name", "Seconds")
     ncatt_put(ncout, 'DTUT8601', "sdn_uom_name", "ISO8601")
     
+    # H.Hourston Feb 17, 2020: Add "long_name" attribute to 'latitude' and 'longitude' variables (the duplicated ones)
+    # standard_name attributes is done later with the other variables, since this attribute is assigned to them and not these
+    #'units' assigned in the variable definition at the beginning of the function code
+    ncatt_put(ncout, 'latitude', 'long_name', 'Latitude')
+    ncatt_put(ncout, 'longitude', 'long_name', 'Longitude')
+
     
     #CF standard names
     ncatt_put(ncout, 'LCEWAP01', "standard_name", "eastward_sea_water_velocity")
@@ -1565,6 +1553,8 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "ELTMEP01", "standard_name", "time")
     ncatt_put(ncout, 'ALATZZ01', "standard_name", "latitude")
     ncatt_put(ncout, 'ALONZZ01', "standard_name", "longitude")
+    ncatt_put(ncout, 'latitude', "standard_name", "latitude")
+    ncatt_put(ncout, 'longitude', "standard_name", "longitude")
     ncatt_put(ncout, 'PPSAADCP', "standard_name", "instrument_depth")
     ncatt_put(ncout, 'PTCHGP01', "standard_name", "platform_pitch_angle")
     ncatt_put(ncout, 'ROLLGP01', "standard_name", "platform_roll_angle")
@@ -1723,6 +1713,8 @@ oceNc_create <- function(adp, name, metadata){
     
     ncatt_put(ncout, 'ALATZZ01', "standard_name", "latitude")
     ncatt_put(ncout, 'ALONZZ01', "standard_name", "longitude")
+    ncatt_put(ncout, 'latitude', "standard_name", "latitude")
+    ncatt_put(ncout, 'longitude', "standard_name", "longitude")
     
   }
   if(!is.null(adp[['publisher_name']])){
