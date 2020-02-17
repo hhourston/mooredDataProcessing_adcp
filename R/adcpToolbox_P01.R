@@ -1052,9 +1052,17 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, ts_def, adp[['time']])
     
     #H.Hourston Feb 13, 2020: Add missing variables from global attributes
-    ncvar_put(ncout, im_def, paste(adp[['instrumentType']], adp[['instrumentSubtype']], sep=' '))
-    ncvar_put(ncout, isn_def, adp[['serialNumber']])
-    #
+    if (adp[['instrumentSubtype']] == 'Workhorse'){
+      model = 'WH'
+    } else if (adp[['instrumentSubtype']] == 'Broadband'){
+      model = 'BB'
+    } else if (adp[['instrumentSubtype']] == 'Sentinel V'){
+      model = 'SV'
+    } else {
+      model = ''
+    }
+    ncvar_put(ncout, im_def, paste('RDI', adp[['instrumentSubtype']], 'ADCP', paste0(adp[['frequency']], 'kHz'), sep=' '))
+    ncvar_put(ncout, isn_def, paste0(model, adp[['serialNumber']]))
 
     # H.Hourston July 8, 2019: Add other missing flag variables, salinity, ...
     # ncvar_put(ncout, qc_te90_def, adp[['flags']][['temperature']])
