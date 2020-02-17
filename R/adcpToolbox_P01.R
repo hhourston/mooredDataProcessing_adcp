@@ -1052,11 +1052,14 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, ts_def, adp[['time']])
     
     #H.Hourston Feb 13, 2020: Add missing variables from global attributes
-    if (adp[['instrumentSubtype']] == 'Workhorse'){
+    if (adp[['instrumentSubtype']] == 'Workhorse' | adp[['instrumentSubtype']] == 'WorkHorse'){
       model = 'WH'
       lr = 'Long Ranger'
-    } else if (adp[['instrumentSubtype']] == 'Broadband'){
+    } else if (adp[['instrumentSubtype']] == 'Broadband' | adp[['instrumentSubtype']] == 'BroadBand'){
       model = 'BB'
+      lr = ''
+    } else if (adp[['instrumentSubtype']] == 'Narrowband' | adp[['instrumentSubtype']] == 'NarrowBand'){
+      model = 'NB'
       lr = ''
     } else if (adp[['instrumentSubtype']] == 'Sentinel V'){
       model = 'SV'
@@ -1188,11 +1191,11 @@ oceNc_create <- function(adp, name, metadata){
     #ncatt_put(ncout, 0, "deployment_date", adp[['deployment_time']])
     #ncatt_put(ncout, 0, "recovery_date", adp[['recovery_time']])
     
-    # H.Hourston June 25, 2019
+    # H.Hourston June 25, 2019: Global attributes
     ncatt_put(ncout, 0, "instrumentType", adp[['instrumentType']])
     ncatt_put(ncout, 0, "instrumentSubtype", adp[['instrumentSubtype']])
     ncatt_put(ncout, 0, "manufacturer", adp[['manufacturer']])
-    ncatt_put(ncout, 0, "instrument_serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 0, "instrument_serial_number", paste0(model, adp[['serialNumber']]))
     ncatt_put(ncout, 0, "orientation", adp[['orientation']])
     ncatt_put(ncout, 0, "bin1Distance", adp[['bin1Distance']])
     ncatt_put(ncout, 0, "systemConfiguration", adp[['systemConfiguration']])
@@ -1233,65 +1236,65 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'PPSAADCP', "bin_size", adp[['cellSize']])
     ncatt_put(ncout, 'LCEWAP01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'LCEWAP01', "sensor_depth", adp[['sensor_depth']]) #H.Hourston July 4, 2019: formerly NSCT
-    ncatt_put(ncout, 'LCEWAP01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'LCEWAP01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'LCNSAP01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'LCNSAP01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'LCNSAP01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'LCNSAP01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'LRZAAP01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'LRZAAP01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'LRZAAP01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'LRZAAP01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'LERRAP01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'LERRAP01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'LERRAP01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'LERRAP01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'TNIHCE01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TNIHCE01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'TNIHCE01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'TNIHCE01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'TNIHCE02', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TNIHCE02', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'TNIHCE02', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'TNIHCE02', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'TNIHCE03', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TNIHCE03', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'TNIHCE03', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'TNIHCE03', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'TNIHCE04', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TNIHCE04', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'TNIHCE04', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'TNIHCE04', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, "CMAGZZ01", "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, "CMAGZZ01", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAGZZ01", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ01", "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, "CMAGZZ02", "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, "CMAGZZ02", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAGZZ02", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ02", "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, "CMAGZZ03", "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, "CMAGZZ03", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAGZZ03", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ03", "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, "CMAGZZ04", "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, "CMAGZZ04", "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, "CMAGZZ04", "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, "CMAGZZ04", "instrument_serial_number", adp[['serialNumber']])
     
     if (length(adp[['g']]) != 0){
     ncatt_put(ncout, 'PCGDAP00', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP00', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP00', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PCGDAP00', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'PCGDAP02', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP02', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP02', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PCGDAP02', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'PCGDAP03', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP03', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP03', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PCGDAP03', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'PCGDAP04', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PCGDAP04', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP04', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PCGDAP04', "instrument_serial_number", adp[['serialNumber']])
     }
     
     ncatt_put(ncout, 'HEADCM01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'HEADCM01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'HEADCM01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'HEADCM01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'PRESPR01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PRESPR01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PRESPR01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PRESPR01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'SVELCV01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'SVELCV01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'SVELCV01', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'SVELCV01', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'LCEWAP01', "generic_name", "u")
     ncatt_put(ncout, 'LCNSAP01', "generic_name", "v")
     ncatt_put(ncout, 'LRZAAP01', "generic_name", "w")
@@ -1315,15 +1318,15 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'DISTTRAN', "generic_name", "height")
     ncatt_put(ncout, 'DISTTRAN', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'DISTTRAN', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'DISTTRAN', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'DISTTRAN', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'PPSAADCP', "generic_name", "depth")
     ncatt_put(ncout, 'PPSAADCP', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'PPSAADCP', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PPSAADCP', "serial_number", adp[['serialNumber']])
+    ncatt_put(ncout, 'PPSAADCP', "instrument_serial_number", adp[['serialNumber']])
     ncatt_put(ncout, 'TEMPPR01', "generic_name", "temp")
     ncatt_put(ncout, 'TEMPPR01', "sensor_type", adp[['instrumentType']])
     ncatt_put(ncout, 'TEMPPR01', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'TEMPPR01', "serial_number", adp[['serialNumber']]) 
+    ncatt_put(ncout, 'TEMPPR01', "instrument_serial_number", adp[['serialNumber']]) 
     ncatt_put(ncout, 'LCEWAP01', "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset") #H.Hourston June 29, 2019
     ncatt_put(ncout, 'LCEWAP01', "flag_meanings",adp[['flag_meaning']])
     ncatt_put(ncout, 'LCEWAP01', "flag_values",adp[['flag_values']]) # c(0:9) H.Hourston June 29, 2019 
