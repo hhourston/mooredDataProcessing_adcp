@@ -319,6 +319,15 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
     x[['heading']][t < t1] <- NA
     x[['soundSpeed']][t < t1] <- NA #H.Hourston Aug 7, 2019: Added
     
+    if (x[['instrumentSubtype']] == 'Sentinel V'){
+      x[['vv']][t < t1] <- NA
+      x[['va']][t < t1] <- NA
+      x[['vq']][t < t1] <- NA
+      if (length(x[['vg']]) != 0){
+        x[['vg']][t < t1] <- NA
+      }
+    }
+    
     # H.Hourston June 28, 2019: Add Time, soundSpeed, headingStd, pitchStd, 
     # rollStd, pressureStd, xmitCurrent, xmitVoltage, ambientTemp, 
     # pressurePlus, pressureMinus, attitudeTemp, attitude, and 
@@ -344,6 +353,16 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
       x[['pitch']][t < t1] <- NA
       x[['roll']][t < t1] <- NA
       x[['heading']][t < t1] <- NA
+      
+      if (x[['instrumentSubtype']] == 'Sentinel V'){
+        x[['vv']][t < t1] <- NA
+        x[['va']][t < t1] <- NA
+        x[['vq']][t < t1] <- NA
+        if (length(x[['vg']]) != 0){
+          x[['vg']][t < t1] <- NA
+        }
+      }
+      
     }
     if (is.null(x@metadata$time_coverage_start)){
       warning('No deployment Time provided!')
@@ -359,6 +378,15 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
       x[['pitch']][t > t2] <- NA
       x[['roll']][t > t2] <- NA
       x[['heading']][t > t2] <- NA
+      
+      if (x[['instrumentSubtype']] == 'Sentinel V'){
+          x[['vv']][t > t2] <- NA
+          x[['va']][t > t2] <- NA
+          x[['vq']][t > t2] <- NA
+          if (length(x[['vg']]) != 0){
+            x[['vg']][t > t2] <- NA
+          }
+       }
     }
     else if (missing(rt))
       if (!is.null(x@metadata$time_coverage_end)){
@@ -370,6 +398,16 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
         x[['pitch']][t > t2] <- NA
         x[['roll']][t > t2] <- NA
         x[['heading']][t > t2] <- NA
+        
+        if (x[['instrumentSubtype']] == 'Sentinel V'){
+          x[['vv']][t > t2] <- NA
+          x[['va']][t > t2] <- NA
+          x[['vq']][t > t2] <- NA
+          if (length(x[['vg']]) != 0){
+            x[['vg']][t > t2] <- NA
+          }
+        }
+        
       }
     if (is.null(x@metadata$time_coverage_end)){
       warning('No recovery time provided!')
@@ -856,6 +894,40 @@ oceNc_create <- function(adp, name, metadata){
     isn_def <- ncvar_def("instrument_serial_number", units = "", dim = list(stationdim), FillValue, dlname, prec = "char")
     ###
 
+    #H.Hourston Aug 29, 2019: Encountered a Sentinel V instrument without percent good data, so omit if the case
+    if (adp[['instrumentSubtype']] !='Sentinel V'){
+      dlname <- "percent_good_beam_1"
+      pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+      dlname <- "percent_good_beam_2"
+      pg2_def <- ncvar_def('PCGDAP02', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+      dlname <- "percent_good_beam_3"
+      pg3_def <- ncvar_def('PCGDAP03', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+      dlname <- "percent_good_beam_4"
+      pg4_def <- ncvar_def('PCGDAP04', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+    } else {
+      #warning('No percent good data (g) detected; percent good variables will not be created.')
+      
+      #H.Hourston Jan 6, 2020: Sentinel V ADCPs have vv, va, vg, and vq variables
+      dlname <- "vertical_beam_sea_water_velocity"
+      vb_v_def <- ncvar_def('', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+
+      dlname <- "vertical_beam_amplitude"
+      vb_a_def <- ncvar_def('', "m", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+      dlname <- "vertical_beam_ADCP_correlation_magnitude"
+      vb_cm_def <- ncvar_def("", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      
+      if (length(adp[['vg']]) != 0){ #fortune file did not have vg values but it did have a vg variable
+        dlname <- "vertical_beam_percent_good"
+        vb_pg_def <- ncvar_def('', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      }
+    }
+    
+    
     #Add flags? Added by H.Hourston July 4, 2019
     #dlname <- "flags"
     #flags_def <- ncvar_def("Flags", units = "", dim = list(timedim, stationdim), FillValue, dlname, prec = "integer")
@@ -953,11 +1025,12 @@ oceNc_create <- function(adp, name, metadata){
     
     ####writing net CDF####
     #write out definitions to new nc file
-    # condition if percent good beams exist
-    if (length(adp[['g']] != 0)){
+    # condition if instrument is a Sentinel V and if percent good beams exist
+    if (adp[['instrumentSubtype']] == 'Sentinel V'){
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, vb_a_def, vb_cm_def, vb_pg_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+    } else { #NOT SENTINEL V
       ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
-    } else {
-      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+    
     }  
     #Includes all extra ancillary variables
     #ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def, qc_e_def, qc_ptch_def, qc_roll_def, qc_te90_def, qc_head_def, qc_D_def, qc_t_def, qc_b1_def, qc_b2_def, qc_b3_def, qc_b4_def, qc_pg1_def, qc_pg2_def, qc_pg3_def, qc_pg4_def, qc_hght_def, qc_lon_def, qc_lat_def, qc_pres_def, qc_svel_def, qc_ts_def, qc_cm1_def, qc_cm2_def, qc_cm3_def, qc_cm4_def), force_v4 = TRUE)
@@ -1001,8 +1074,11 @@ oceNc_create <- function(adp, name, metadata){
     
     ####writing net CDF####
     #write out definitions to new nc file
-    ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def,  pg1_def, lon_def, lat_def, ts_def), force_v4 = TRUE)
-    
+    if (adp[['instrumentSubtype']] == 'Sentinel V'){
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def,  pg1_def, lon_def, lat_def, ts_def), force_v4 = TRUE)
+    } else {
+      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def,  pg1_def, lon_def, lat_def, ts_def), force_v4 = TRUE)
+    }
     
   }
   
@@ -1031,11 +1107,20 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, cm3_def, adp[['q', 'numeric']][,,3])
     ncvar_put(ncout, cm4_def, adp[['q', 'numeric']][,,4])
     
-    if (length(adp[['g']] != 0)){
-    ncvar_put(ncout, pg1_def, adp[['g', 'numeric']][,,1])
-    ncvar_put(ncout, pg2_def, adp[['g', 'numeric']][,,2])
-    ncvar_put(ncout, pg3_def, adp[['g', 'numeric']][,,3])
-    ncvar_put(ncout, pg4_def, adp[['g', 'numeric']][,,4])
+    # H.Hourston Feb 17, 2020: Added Sentinel V vertical beam variables ***do all Sentinel V files not have g and pg data?
+    # The following leaves vg and g without values if instrument is Sentinel V... FIXME
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncvar_put(ncout, pg1_def, adp[['g', 'numeric']][,,1])
+      ncvar_put(ncout, pg2_def, adp[['g', 'numeric']][,,2])
+      ncvar_put(ncout, pg3_def, adp[['g', 'numeric']][,,3])
+      ncvar_put(ncout, pg4_def, adp[['g', 'numeric']][,,4])
+    } else {
+      ncvar_put(ncout, vb_v_def, adp[['vv']])
+      ncvar_put(ncout, vb_a_def, adp[['va', 'numeric']])
+      ncvar_put(ncout, vb_cm_def, adp[['vq', 'numeric']])
+      if (length(adp[['vg']]) != 0){
+        ncvar_put(ncout, vb_pg_def, adp[['vg', 'numeric']])
+      }
     }
     
     ncvar_put(ncout, p_def, adp[['pitch']])
@@ -1070,6 +1155,7 @@ oceNc_create <- function(adp, name, metadata){
     }
     ncvar_put(ncout, im_def, sprintf('RDI %s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], lr, adp[['frequency']], adp[['serialNumber']]))
     ncvar_put(ncout, isn_def, paste0(model, adp[['serialNumber']]))
+    
 
     # H.Hourston July 8, 2019: Add other missing flag variables, salinity, ...
     # ncvar_put(ncout, qc_te90_def, adp[['flags']][['temperature']])
@@ -1271,19 +1357,32 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "CMAGZZ04", "sensor_depth", adp[['sensor_depth']])
     ncatt_put(ncout, "CMAGZZ04", "instrument_serial_number", adp[['serialNumber']])
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, 'PCGDAP00', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP00', "instrument_serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, 'PCGDAP02', "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, 'PCGDAP02', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP02', "instrument_serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, 'PCGDAP03', "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, 'PCGDAP03', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP03', "instrument_serial_number", adp[['serialNumber']])
-    ncatt_put(ncout, 'PCGDAP04', "sensor_type", adp[['instrumentType']])
-    ncatt_put(ncout, 'PCGDAP04', "sensor_depth", adp[['sensor_depth']])
-    ncatt_put(ncout, 'PCGDAP04', "instrument_serial_number", adp[['serialNumber']])
+    # H.Hourston Feb 17, 2020: Added Sentinel V vertical beam variables
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, 'PCGDAP00', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, 'PCGDAP00', "serial_number", adp[['serialNumber']])
+      ncatt_put(ncout, 'PCGDAP02', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, 'PCGDAP02', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, 'PCGDAP02', "serial_number", adp[['serialNumber']])
+      ncatt_put(ncout, 'PCGDAP03', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, 'PCGDAP03', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, 'PCGDAP03', "serial_number", adp[['serialNumber']])
+      ncatt_put(ncout, 'PCGDAP04', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, 'PCGDAP04', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, 'PCGDAP04', "serial_number", adp[['serialNumber']])
+    } else {
+      #once have BODC codes for the four variables, add them here
+      ncatt_put(ncout, '', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, '', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, '', "serial_number", adp[['serialNumber']])
+      ncatt_put(ncout, '', "sensor_type", adp[['instrumentType']])
+      ncatt_put(ncout, '', "sensor_depth", adp[['sensor_depth']])
+      ncatt_put(ncout, '', "serial_number", adp[['serialNumber']])
+      if (length(adp[['vg']]) != 0){
+        ncatt_put(ncout, '', "sensor_type", adp[['instrumentType']])
+        ncatt_put(ncout, '', "sensor_depth", adp[['sensor_depth']])
+      }
     }
     
     ncatt_put(ncout, 'HEADCM01', "sensor_type", adp[['instrumentType']])
@@ -1308,11 +1407,20 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "CMAGZZ03", "generic_name", "CM")
     ncatt_put(ncout, "CMAGZZ04", "generic_name", "CM")
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "generic_name", "PGd")
-    ncatt_put(ncout, 'PCGDAP02', "generic_name", "PGd")
-    ncatt_put(ncout, 'PCGDAP03', "generic_name", "PGd")
-    ncatt_put(ncout, 'PCGDAP04', "generic_name", "PGd")
+    #H.Hourston Feb 17, 2020: add sentinel V vertical beam variables; ***MISSING BODC CODES
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', "generic_name", "PGd")
+      ncatt_put(ncout, 'PCGDAP02', "generic_name", "PGd")
+      ncatt_put(ncout, 'PCGDAP03', "generic_name", "PGd")
+      ncatt_put(ncout, 'PCGDAP04', "generic_name", "PGd")
+    } else {
+      # BODC codes needed
+      ncatt_put(ncout, 'BODC', "generic_name", "vv")
+      ncatt_put(ncout, '', "generic_name", "va")
+      ncatt_put(ncout, '', "generic_name", "vq")
+      if (length(adp[['vg']]) != 0){
+        ncatt_put(ncout, '', "generic_name", "vg")
+      }
     }
     
     ncatt_put(ncout, 'DISTTRAN', "generic_name", "height")
@@ -1441,11 +1549,18 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'CMAGZZ04', 'legency_GF3_code', 'SDN:GF3::CMAG_04')
     
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', 'legency_GF3_code', 'SDN:GF3::PGDP_01')
-    ncatt_put(ncout, 'PCGDAP02', 'legency_GF3_code', 'SDN:GF3::PGDP_02')
-    ncatt_put(ncout, 'PCGDAP03', 'legency_GF3_code', 'SDN:GF3::PGDP_03')
-    ncatt_put(ncout, 'PCGDAP04', 'legency_GF3_code', 'SDN:GF3::PGDP_04')
+    # H.Hourston fEB 17, 2020: Sentinel V vertical beam velocities didn't have gf3 codes
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', 'legency_GF3_code', 'SDN:GF3::PGDP_01')
+      ncatt_put(ncout, 'PCGDAP02', 'legency_GF3_code', 'SDN:GF3::PGDP_02')
+      ncatt_put(ncout, 'PCGDAP03', 'legency_GF3_code', 'SDN:GF3::PGDP_03')
+      ncatt_put(ncout, 'PCGDAP04', 'legency_GF3_code', 'SDN:GF3::PGDP_04')
+    } else {
+      # ncatt_put(ncout, '', 'legency_GF3_code', 'SDN:GF3::vv')
+      # ncatt_put(ncout, '', 'legency_GF3_code', 'SDN:GF3::va')
+      # ncatt_put(ncout, '', 'legency_GF3_code', 'SDN:GF3::vq')
+      # if (length(adp[['vg']]) != 0){
+      # ncatt_put(ncout, '', 'legency_GF3_code', 'SDN:GF3::vg') }
     }
     
     ncatt_put(ncout, 'DISTTRAN', "legency_GF3_code", "SDN:GF3::HGHT") #ASLVMWHA
@@ -1476,11 +1591,21 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
     ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 1")
-    ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 2")
-    ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 3")
-    ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 4")
+    # H.Hourston Feb 17, 2020: Sentinel V vertical beam velocities ***NEED BODC CODES
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 1")
+      ncatt_put(ncout, 'PCGDAP02', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 2")
+      ncatt_put(ncout, 'PCGDAP03', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 3")
+      ncatt_put(ncout, 'PCGDAP04', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) beam 4")
+    } else {
+      # NEED BODC CODES
+      ncatt_put(ncout, '', "sdn_parameter_name", "Current velocity (Eulerian measurement) in the water body by moored acoustic doppler current profiler (ADCP) vertical beam")
+      ncatt_put(ncout, '', "sdn_parameter_name", "Amplitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) vertical beam")
+      ncatt_put(ncout, '', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) vertical beam")
+      
+      if (length(adp[['vg']]) != 0){
+        ncatt_put(ncout, '', "sdn_parameter_name", "Acceptable proportion of signal returns by moored acoustic doppler current profiler (ADCP) vertical beam")
+      }
     }
     
     ncatt_put(ncout, 'PPSAADCP', "sdn_parameter_name", "Depth below surface of the water body by acoustic doppler current profiler (ADCP) and computation from travel time averaged from all operational beams and unknown sound velocity profile")
@@ -1504,11 +1629,17 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE03', "sdn_uom_urn", "SDN:P06::UCNT")
     ncatt_put(ncout, 'TNIHCE04', "sdn_uom_urn", "SDN:P06::UCNT")
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "sdn_uom_urn", "SDN:P06::UPCT")
-    ncatt_put(ncout, 'PCGDAP02', "sdn_uom_urn", "SDN:P06::UPCT")
-    ncatt_put(ncout, 'PCGDAP03', "sdn_uom_urn", "SDN:P06::UPCT")
-    ncatt_put(ncout, 'PCGDAP04', "sdn_uom_urn", "SDN:P06::UPCT")
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', "sdn_uom_urn", "SDN:P06::UPCT")
+      ncatt_put(ncout, 'PCGDAP02', "sdn_uom_urn", "SDN:P06::UPCT")
+      ncatt_put(ncout, 'PCGDAP03', "sdn_uom_urn", "SDN:P06::UPCT")
+      ncatt_put(ncout, 'PCGDAP04', "sdn_uom_urn", "SDN:P06::UPCT")
+    } else {
+      ncatt_put(ncout, '', "sdn_uom_urn", "SDN:P06::UVAA") #units are guess for vv
+      ncatt_put(ncout, '', "sdn_uom_urn", "SDN:P06::") #units unknown for amplitude
+      if (length(adp[['vg']]) != 0){
+        ncatt_put(ncout, '', "sdn_uom_urn", "SDN:P06::UPCT")
+      }
     }
     
     ncatt_put(ncout, 'DISTTRAN', "sdn_uom_urn", "SDN:P06::ULAA")
@@ -1534,11 +1665,11 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE03', "sdn_uom_name", "Counts")
     ncatt_put(ncout, 'TNIHCE04', "sdn_uom_name", "Counts")
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "sdn_uom_name", "Percent")
-    ncatt_put(ncout, 'PCGDAP02', "sdn_uom_name", "Percent")
-    ncatt_put(ncout, 'PCGDAP03', "sdn_uom_name", "Percent")
-    ncatt_put(ncout, 'PCGDAP04', "sdn_uom_name", "Percent")
+    #H.Hourston Jan 9, 2020: Sentinel V variables added *** BODC CODES NEEDED
+    if (adp[['instrumentSubtype']] == 'Sentinel V'){
+      ncatt_put(ncout, '', "sdn_uom_name", "Metres per second")
+      ncatt_put(ncout, '', "sdn_uom_name", "Metres")
+      ncatt_put(ncout, '', "sdn_uom_name", "Percent")
     }
     
     ncatt_put(ncout, 'DISTTRAN', "sdn_uom_name", "Metres")
@@ -1792,15 +1923,30 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "CMAGZZ04", "data_min", min(adp[['q', 'numeric']][,,4], na.rm= TRUE))
     ncatt_put(ncout, "CMAGZZ04", "data_max", max(adp[['q', 'numeric']][,,4], na.rm= TRUE))
     
-    if (length(adp[['g']]) != 0){
-    ncatt_put(ncout, 'PCGDAP00', "data_min", min(adp[['g', 'numeric']][,,1], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP00', "data_max", max(adp[['g', 'numeric']][,,1], na.rm= TRUE))# eg min 25 % good
-    ncatt_put(ncout, 'PCGDAP02', "data_min", min(adp[['g', 'numeric']][,,2], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP02', "data_max", max(adp[['g' ,'numeric']][,,2], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP03', "data_min", min(adp[['g' ,'numeric']][,,3], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP03', "data_max", max(adp[['g', 'numeric']][,,3], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP04', "data_min", min(adp[['g', 'numeric']][,,4], na.rm= TRUE))
-    ncatt_put(ncout, 'PCGDAP04', "data_max", max(adp[['g', 'numeric']][,,4], na.rm= TRUE))
+    #H.Hourston Feb 17, 2020: Add Sentinel V variables *** NEED BODC CODES
+    if (adp[['instrumentSubtype']] != 'Sentinel V'){
+      ncatt_put(ncout, 'PCGDAP00', "data_min", min(adp[['g', 'numeric']][,,1], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP00', "data_max", max(adp[['g', 'numeric']][,,1], na.rm= TRUE))# eg min 25 % good
+      ncatt_put(ncout, 'PCGDAP02', "data_min", min(adp[['g', 'numeric']][,,2], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP02', "data_max", max(adp[['g' ,'numeric']][,,2], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP03', "data_min", min(adp[['g' ,'numeric']][,,3], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP03', "data_max", max(adp[['g', 'numeric']][,,3], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP04', "data_min", min(adp[['g', 'numeric']][,,4], na.rm= TRUE))
+      ncatt_put(ncout, 'PCGDAP04', "data_max", max(adp[['g', 'numeric']][,,4], na.rm= TRUE))
+    } else {
+      ncatt_put(ncout, "", "data_min", min(adp[['vv']], na.rm= TRUE))
+      ncatt_put(ncout, "", "data_max", max(adp[['vv']], na.rm= TRUE))
+      ncatt_put(ncout, 'LCEWAP01', "valid_max", 1000)
+      ncatt_put(ncout, 'LCEWAP01', "valid_min", -1000)
+      
+      ncatt_put(ncout, "", "data_min", min(adp[['va', 'numeric']], na.rm= TRUE))
+      ncatt_put(ncout, "", "data_max", max(adp[['va', 'numeric']], na.rm= TRUE))
+      ncatt_put(ncout, "", "data_min", min(adp[['vq', 'numeric']], na.rm= TRUE))
+      ncatt_put(ncout, "", "data_max", max(adp[['vq', 'numeric']], na.rm= TRUE))
+      if (length(adp[['vg']]) != 0){
+        ncatt_put(ncout, '', "data_min", min(adp[['vg', 'numeric']], na.rm= TRUE))
+        ncatt_put(ncout, '', "data_max", max(adp[['vg', 'numeric']], na.rm= TRUE))
+      }
     }
     # H.Hourston Aug 6, 2019: data_max for these variables minus ROLL were the fill value for some reason
     # ncatt_put(ncout, 'DISTTRAN', "data_min", min(adp[['depth', 'data']]))
