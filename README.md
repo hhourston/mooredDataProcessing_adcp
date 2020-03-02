@@ -9,18 +9,18 @@ This repository is under construction.
   To install dependencies in R:
   
     install.packages("devtools")
-    '<install_github("dankelley/oce", ref="develop")>'
-    '<install_github("dankelley/ocedata", ref="master")>'
-    '<install.packages("ncdf4")>'
-    '<install.packages("maps")>'
+    install_github("dankelley/oce", ref="develop")
+    install_github("dankelley/ocedata", ref="master")
+    install.packages("ncdf4")
+    install.packages("maps")
   
   To install ADCP in R:
   
-    '<library(devtools)>'
-    '<install_github("hhourston/mooredDataProcessing_adcp")>'
+    library(devtools)
+    install_github("hhourston/mooredDataProcessing_adcp")
   
 ## Documentation of dependencies
-  '<oce>': https://cran.r-project.org/web/packages/oce/oce.pdf
+  'oce': https://cran.r-project.org/web/packages/oce/oce.pdf
   '<ncdf4>': https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 
 ## Usage
@@ -29,5 +29,3 @@ This repository is under construction.
 ## Credits
   '<ADCP>' was created by Emily Chisholm (https://github.com/Echisholm21).
   
-## License
-  License for the project.
