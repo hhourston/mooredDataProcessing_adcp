@@ -8,11 +8,11 @@ This repository is under construction.
 ## Installation
   To install dependencies in R:
   
-   '<install.packages("devtools")>'
-   '<install_github("dankelley/oce", ref="develop")>'
-   '<install_github("dankelley/ocedata", ref="master")>'
-   '<install.packages("ncdf4")>'
-   '<install.packages("maps")>'
+    install.packages("devtools")
+    '<install_github("dankelley/oce", ref="develop")>'
+    '<install_github("dankelley/ocedata", ref="master")>'
+    '<install.packages("ncdf4")>'
+    '<install.packages("maps")>'
   
   To install ADCP in R:
   
