@@ -22,7 +22,7 @@ Currently, there is only one low level of processing supported by this package (
   `ncdf4`: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 
 ## Usage
-  A sample script called *ADCP_lvl1_process.R* that makes use of this package can be found at https://github.com/hhourston/ADCP_processing_visualization.
+  Please see the repository https://github.com/hhourston/ADCP_processing_visualization for usage instructions. A sample script called *ADCP_lvl1_process.R* that makes use of this package can be found in this repository along with a csv metadata template, a sample raw file, filled-out csv metadata file and output netCDF file, and R and Python scripts for viewing and plotting netCDF file data.
   
   A version of this script that is callable from Python can be found at https://github.com/hhourston/ADCP_processing_visualization/tree/master/callR_fromPython. A sample Python script that runs this R script can also be found in that folder.
   
