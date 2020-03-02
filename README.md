@@ -5,7 +5,7 @@ Currently, there is only one low level of processing supported by this package (
 
 This repository is under construction.
 
-<h1> Installation
+## Installation
   To install dependencies in R:
   
     '<install.packages("devtools")>'
@@ -19,15 +19,15 @@ This repository is under construction.
     '<library(devtools)>'
     '<install_github("hhourston/mooredDataProcessing_adcp")>'
   
-<h1> Documentation of dependencies
+## Documentation of dependencies
   '<oce>': https://cran.r-project.org/web/packages/oce/oce.pdf
   '<ncdf4>': https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 
-<h1> Usage
+## Usage
   A sample script that makes use of this package can be found at [GitHub](https://github.com/hhourston/ADCP_processing_visualization) and is called *ADCP_lvl1_process.R*.
   
-<h1> Credits
+## Credits
   '<ADCP>' was created by Emily Chisholm (https://github.com/Echisholm21).
   
-<h1> License
+## License
   License for the project.
