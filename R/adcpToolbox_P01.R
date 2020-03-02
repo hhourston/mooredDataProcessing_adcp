@@ -788,20 +788,20 @@ oceNc_create <- function(adp, name, metadata){
     
     #define variables
     dlname <- 'filename'
-    fn_def <- ncvar_def(units = '', dim = stationdim, name = dlname, prec = 'char') #optional "longname" argument omitted
+    fn_def <- ncvar_def(name = dlname, units = '', dim = stationdim, prec = 'char') #optional "longname" argument omitted
     
     print('setting lon and lat definitions')
     dlname <- 'longitude'
-    lon_def <- ncvar_def(longname= dlname, units = 'degrees_east', dim = stationdim, name = 'ALONZZ01', prec = 'double')
+    lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = stationdim, longname = dlname, prec = 'double')
     
     dlname <- 'latitude'
-    lat_def <- ncvar_def( longname = dlname, units = 'degrees_north', dim =  stationdim, name = 'ALATZZ01', prec = 'double')
+    lat_def <- ncvar_def(name = 'ALATZZ01', units = 'degrees_north', dim =  stationdim, longname = dlname, prec = 'double')
     
     dlname <- 'longitude'
-    lon2_def <- ncvar_def(units = 'degrees_east', dim = stationdim, name = dlname, prec = 'double')
+    lon2_def <- ncvar_def(name = dlname, units = 'degrees_east', dim = stationdim, prec = 'double')
     
     dlname <- 'latitude'
-    lat2_def <- ncvar_def(units = 'degrees_north', dim =  stationdim, name = dlname, prec = 'double')
+    lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = stationdim, prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
     u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
@@ -884,14 +884,14 @@ oceNc_create <- function(adp, name, metadata){
     svel_def <- ncvar_def('SVELCV01', "m/sec", list(timedim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "DTUT8601"
-    ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, name =  dlname, prec = "char")
+    ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, prec = "char")
     
     ###H.Hourston Feb 13, 2020: Add missing variables that were previously just global attributes
     dlname <- "instrument_model"
-    im_def <- ncvar_def("instrument_model", units = "", dim = list(stationdim), FillValue, dlname, prec = "char")
+    im_def <- ncvar_def("instrument_model", units = "", dim = stationdim, prec = "char") #shouldn't have fillvalue
     
     dlname <- "instrument_serial_number"
-    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = list(stationdim), FillValue, dlname, prec = "char")
+    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = stationdim, prec = "char") #shouldn't have fillvalue
     ###
 
     #H.Hourston Aug 29, 2019: Encountered a Sentinel V instrument without percent good data, so omit if the case
@@ -944,99 +944,17 @@ oceNc_create <- function(adp, name, metadata){
     dlname <- "quality flag for LRZAAP01"
     qc_w_def <- ncvar_def('LRZAAP01_QC', "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
     
-    #### The following flags added by H.Hourston July 8, 2019 -> July 24, 2019: ONLY FLAGGING v is possible using oce function setFlags()
-    #dlname <- "quality_flag e" #error velocity
-    #qc_e_def <- ncvar_def("ERRV_QC", "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
-    
-    # dlname <- "quality_flag pitch"
-    # qc_p_def <- ncvar_def("PTCH_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag roll"
-    # qc_roll_def <- ncvar_def("ROLL_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP Transducer Temp."
-    # qc_te90_def <- ncvar_def("te90_QC", "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag heading"
-    # qc_head_def <- ncvar_def("HEAD_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag instrument depth"
-    # qc_D_def <- ncvar_def("DEPH_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    
-    # H.Hourston July 9, 2019: The following are not in BIO
-    # dlname <- "quality_flag time_02"
-    # qc_t_def <- ncvar_def("ELTMEP01_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_echo_intensity_beam_1"
-    # qc_b1_def <- ncvar_def("BEAM_01_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_echo_intensity_beam_2"
-    # qc_b2_def <- ncvar_def("BEAM_02_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_echo_intensity_beam_3"
-    # qc_b3_def <- ncvar_def("BEAM_03_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_echo_intensity_beam_4"
-    # qc_b4_def <- ncvar_def("BEAM_04_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag percent_good_beam_1"
-    # qc_pg1_def <- ncvar_def("PGDP_01_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag percent_good_beam_2"
-    # qc_pg2_def <- ncvar_def("PGDP_02_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag percent_good_beam_3"
-    # qc_pg3_def <- ncvar_def("PGDP_03_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag percent_good_beam_4"
-    # qc_pg4_def <- ncvar_def("PGDP_04_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag height of sea surface"
-    # qc_hght_def <- ncvar_def("hght_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag lon"
-    # qc_lon_def <- ncvar_def("lon_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag lat"
-    # qc_lat_def <- ncvar_def("lat_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag pressure"
-    # qc_pres_def <- ncvar_def("PRES_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag speed of sound"
-    # qc_svel_def <- ncvar_def("SVEL_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag time_string"
-    # qc_ts_def <- ncvar_def("DTUT8601_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_correlation_magnitude_beam_1"
-    # qc_cm1_def <- ncvar_def("CMAG_01_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_correlation_magnitude_beam_2"
-    # qc_cm2_def <- ncvar_def("CMAG_02_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_correlation_magnitude_beam_3"
-    # qc_cm3_def <- ncvar_def("CMAG_03_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    # dlname <- "quality_flag ADCP_correlation_magnitude_beam_4"
-    # qc_cm4_def <- ncvar_def("CMAG_04_QC", "", list(timedim, stationdim), FillValue, dlname, prec = "integer")
-    # 
-    ####now must add these all to ncout in the line below...
     
     ####writing net CDF####
     #write out definitions to new nc file
     # condition if instrument is a Sentinel V and if percent good beams exist
+    print('Finished creating variables')
     if (adp[['instrumentSubtype']] == 'Sentinel V'){
-      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, vb_a_def, vb_cm_def, vb_pg_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+      ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, vb_a_def, vb_cm_def, vb_pg_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
     } else { #NOT SENTINEL V
-      ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
-    
+      ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+      print('Created netCDF object')
     }  
-    #Includes all extra ancillary variables
-    #ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def, qc_e_def, qc_ptch_def, qc_roll_def, qc_te90_def, qc_head_def, qc_D_def, qc_t_def, qc_b1_def, qc_b2_def, qc_b3_def, qc_b4_def, qc_pg1_def, qc_pg2_def, qc_pg3_def, qc_pg4_def, qc_hght_def, qc_lon_def, qc_lat_def, qc_pres_def, qc_svel_def, qc_ts_def, qc_cm1_def, qc_cm2_def, qc_cm3_def, qc_cm4_def), force_v4 = TRUE)
-    # Has c('depth', 'te90', 'pitch', 'roll', 'heading') qc variables added but that's it
-    #ncout <- nc_create(ncfname, list(u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, head_def, pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def, qc_e_def, qc_ptch_def, qc_roll_def, qc_te90_def, qc_head_def, qc_D_def), force_v4 = TRUE)
-
   }
   
   if (adp@metadata$source == 'odf'){
@@ -1070,7 +988,7 @@ oceNc_create <- function(adp, name, metadata){
     pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "DTUT8601"
-    ts_def <- ncvar_def("DTUT8601", units = "",dim =  list(dimnchar, timedim), missval = NULL, name =  dlname, prec = "char")
+    ts_def <- ncvar_def("DTUT8601", units = "", dim =  list(dimnchar, timedim), missval = NULL, name =  dlname, prec = "char")
     
     ####writing net CDF####
     #write out definitions to new nc file
@@ -1137,13 +1055,13 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, ts_def, adp[['time']])
     
     #H.Hourston Feb 13, 2020: Add missing variables from global attributes
-    if (adp[['instrumentSubtype']] == 'Workhorse' | adp[['instrumentSubtype']] == 'WorkHorse'){
+    if (adp[['instrumentSubtype']] == 'Workhorse' | adp[['instrumentSubtype']] == 'WorkHorse' | adp[['instrumentSubtype']] == 'WH'){
       model = 'WH'
       lr = 'Long Ranger'
-    } else if (adp[['instrumentSubtype']] == 'Broadband' | adp[['instrumentSubtype']] == 'BroadBand'){
+    } else if (adp[['instrumentSubtype']] == 'Broadband' | adp[['instrumentSubtype']] == 'BroadBand' | adp[['instrumentSubtype']] == 'BB'){
       model = 'BB'
       lr = ''
-    } else if (adp[['instrumentSubtype']] == 'Narrowband' | adp[['instrumentSubtype']] == 'NarrowBand'){
+    } else if (adp[['instrumentSubtype']] == 'Narrowband' | adp[['instrumentSubtype']] == 'NarrowBand' | adp[['instrumentSubtype']] == 'B'){
       model = 'NB'
       lr = ''
     } else if (adp[['instrumentSubtype']] == 'Sentinel V'){
@@ -1155,20 +1073,6 @@ oceNc_create <- function(adp, name, metadata){
     }
     ncvar_put(ncout, im_def, sprintf('RDI %s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], lr, adp[['frequency']], adp[['serialNumber']]))
     ncvar_put(ncout, isn_def, paste0(model, adp[['serialNumber']]))
-    
-
-    # H.Hourston July 8, 2019: Add other missing flag variables, salinity, ...
-    # ncvar_put(ncout, qc_te90_def, adp[['flags']][['temperature']])
-    # ncvar_put(ncout, qc_D_def, adp[['flags']][['depth']])
-    # ncvar_put(ncout, qc_head_def, adp[['flags']][['heading']])
-    # ncvar_put(ncout, qc_p_def, adp[['flags']][['pitch']])
-    # ncvar_put(ncout, qc_roll_def, adp[['flags']][['roll']])
-    # H.Hourston July 9, 2019: We aren't flagging these variables for now
-    # ncvar_put(ncout, qc_b1_def, adp@metadata$flags$a[,,1])
-    # ncvar_put(ncout, qc_b2_def, adp@metadata$flags$a[,,2])
-    # ncvar_put(ncout, qc_b3_def, adp@metadata$flags$a[,,3])
-    # ncvar_put(ncout, qc_b4_def, adp@metadata$flags$a[,,4])
-    # ncvar_put(ncout, qc_pg1_def, adp@metadata$flags$g[,,1]) # rest of pg, cm, pres, svel, ...
     
   }
   if (adp@metadata$source == 'odf'){
@@ -1260,14 +1164,6 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'LCEWAP01', 'ancillary_variables', 'LCEWAP01_QC')
     ncatt_put(ncout, 'LCNSAP01', 'ancillary_variables', 'LCNSAP01_QC')
     ncatt_put(ncout, 'LRZAAP01', 'ancillary_variables', 'LRZAAP01_QC')
-    # The following 6 added by H.Hourston July 8, 2019
-    #ncatt_put(ncout, 'ERRV', 'ancillary_variables', 'ERRV_QC')
-    # ncatt_put(ncout, 'ROLL', 'ancillary_variables', 'ROLL_QC')
-    # ncatt_put(ncout, 'DEPH', 'ancillary_variables', 'DEPH_QC')
-    # ncatt_put(ncout, 'te90', 'ancillary_variables', 'te90_QC')
-    # ncatt_put(ncout, 'PTCH', 'ancillary_variables', 'PTCH_QC')
-    # ncatt_put(ncout, 'HEAD', 'ancillary_variables', 'HEAD_QC')
-    
     
     
     ####pulled from adp object####
@@ -1456,32 +1352,6 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'LCNSAP01_QC', "flag_meanings", adp[['flag_meaning']])
     ncatt_put(ncout, 'LCNSAP01_QC', "flag_values",adp[['flag_values']])
     ncatt_put(ncout, 'LCNSAP01_QC', "References", adp[['flag_references']])
-    # H.Hourston July 4, 2019: Variable DEPH_QC not found- missing extra code for this variable earlier in function
-    #ncatt_put(ncout, "ERRV_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    #ncatt_put(ncout, "ERRV_QC", "flag_meanings", adp[['flag_meaning']])
-    #ncatt_put(ncout, "ERRV_QC", "flag_values",adp[['flag_values']])
-    #ncatt_put(ncout, "ERRV_QC", "References", adp[['flag_references']])
-    # ncatt_put(ncout, "DEPH_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    # ncatt_put(ncout, "DEPH_QC", "flag_meanings", adp[['flag_meaning']])
-    # ncatt_put(ncout, "DEPH_QC", "flag_values",adp[['flag_values']])
-    # ncatt_put(ncout, "DEPH_QC", "References", adp[['flag_references']])
-    # ncatt_put(ncout, "te90_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    # ncatt_put(ncout, "te90_QC", "flag_meanings", adp[['flag_meaning']])
-    # ncatt_put(ncout, "te90_QC", "flag_values",adp[['flag_values']])
-    # ncatt_put(ncout, "te90_QC", "References", adp[['flag_references']])
-    # ncatt_put(ncout, "PTCH_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    # ncatt_put(ncout, "PTCH_QC", "flag_meanings", adp[['flag_meaning']])
-    # ncatt_put(ncout, "PTCH_QC", "flag_values",adp[['flag_values']])
-    # ncatt_put(ncout, "PTCH_QC", "References", adp[['flag_references']])
-    # # ROLL not in this chunk but still makes it into .nc file, so just add ROLL_QC
-    # ncatt_put(ncout, "ROLL_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    # ncatt_put(ncout, "ROLL_QC", "flag_meanings", adp[['flag_meaning']])
-    # ncatt_put(ncout, "ROLL_QC", "flag_values",adp[['flag_values']])
-    # ncatt_put(ncout, "ROLL_QC", "References", adp[['flag_references']])
-    # ncatt_put(ncout, "HEAD_QC", "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
-    # ncatt_put(ncout, "HEAD_QC", "flag_meanings", adp[['flag_meaning']])
-    # ncatt_put(ncout, "HEAD_QC", "flag_values",adp[['flag_values']])
-    # ncatt_put(ncout, "HEAD_QC", "References", adp[['flag_references']])
     
     
     #CF conventions
@@ -1810,7 +1680,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0 , "flag_references", adp[['flag_references']])
     ncatt_put(ncout, 0, "source", "R code: adcpProcess, github:") #Change? H.Hourston June 28, 2019
     ncatt_put(ncout, 0, "date_modified", as.character(as.POSIXct(Sys.time(), format = '%Y-%m-%d %H:%M:%sZ', tz = 'UTC')))
-    ncatt_put(ncout,0, "_FillValue", "1e35")
+    ncatt_put(ncout, 0, "_FillValue", "1e35")
     ncatt_put(ncout, 0, "featureType", "profileTimeSeries") #link to oce object? ..... if adp == timeSeriesProfile
     
     #BODC P01 names
@@ -1948,23 +1818,7 @@ oceNc_create <- function(adp, name, metadata){
         ncatt_put(ncout, '', "data_max", max(adp[['vg', 'numeric']], na.rm= TRUE))
       }
     }
-    # H.Hourston Aug 6, 2019: data_max for these variables minus ROLL were the fill value for some reason
-    # ncatt_put(ncout, 'DISTTRAN', "data_min", min(adp[['depth', 'data']]))
-    # ncatt_put(ncout, 'DISTTRAN', "data_max", max(adp[['depth', 'data']]))
-    # ncatt_put(ncout, 'DEPFP01', "data_min", min(adp[['depth']]))
-    # ncatt_put(ncout, 'DEPFP01', "data_max", max(adp[['depth']]))
-    # ncatt_put(ncout, 'TEMPPR01', "data_min", min(adp[['temperature']]))
-    # ncatt_put(ncout, 'TEMPPR01', "data_max", max(adp[['temperature']]))
-    # ncatt_put(ncout, 'PTCHGP01', "data_min", min(adp[['pitch']]))
-    # ncatt_put(ncout, 'PTCHGP01', "data_max", max(adp[['pitch']]))
-    #ncatt_put(ncout, 'ROLLGP01', "data_min", min(adp[['roll']]))
-    #ncatt_put(ncout, 'ROLLGP01', "data_max", max(adp[['roll']]))
-    # ncatt_put(ncout, 'HEADCM01', "data_min", min(adp[['heading']]))
-    # ncatt_put(ncout, 'HEADCM01', "data_max", max(adp[['heading']]))
-    # ncatt_put(ncout, 'PRESPR01', "data_min", min(adp[['pressure']]))
-    # ncatt_put(ncout, 'PRESPR01', "data_max", max(adp[['pressure']]))
-    # ncatt_put(ncout, 'SVELCV01', "data_min", min(adp[['soundSpeed']]))
-    # ncatt_put(ncout, 'SVELCV01', "data_max", max(adp[['soundSpeed']]))
+
     ncatt_put(ncout, 'DISTTRAN', "data_min", min(adp[['depth', 'data']]))
     ncatt_put(ncout, 'DISTTRAN', "data_max", max(adp[['depth', 'data']][ adp[['depth', 'data']] != max(adp[['depth', 'data']]) ]))
     ncatt_put(ncout, 'PPSAADCP', "data_min", min(adp[['depth']]))
@@ -1979,7 +1833,6 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'HEADCM01', "data_max", max(adp[['heading']][ adp[['heading']] != max(adp[['heading']]) ]))
     ncatt_put(ncout, 'PRESPR01', "data_min", min(adp[['pressure']]))
     ncatt_put(ncout, 'PRESPR01', "data_max", max(adp[['pressure']][ adp[['pressure']] != max(adp[['pressure']]) ]))
-    # soundSpeed wasn't giving the fill value as the max since it wasn't getting assigned
     # NA values for the leading and trailing ensembles in limit_time()
     # H.Hourston Aug 7, 2019: added soundSpeed to limit_time 
     ncatt_put(ncout, 'SVELCV01', "data_min", min(adp[['soundSpeed']]))
@@ -3723,7 +3576,7 @@ plotQC <- function(obj, QC, ... ){
     uGood <- Good[['v']][,,1]
     
     for(i in 1:length(obj[['v']][1,,1])){
-      plot(uGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of U')), type = 'l', ylim = c(-1.5, 1.5), ...) #need '...' ?
+      plot(uGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of U')), type = 'l', ylim = c(-1.5, 1.5), ...)
       par(new = TRUE)
       plot(uBad[,i], xlab = '', ylab = '', axes = FALSE, col = 'red', type = 'l', ylim = c(-1.5, 1.5))
       par(new = TRUE)
@@ -3842,40 +3695,15 @@ plotQC <- function(obj, QC, ... ){
 #' @examples
 startPlots <- function(adp, path){
   
-  #save all plots to folder
-  
-  # Commented out by H.Hourston June 26, 2019
-  # if (!is.null(adp[['mooring_number']])){
-  #   mooring <- adp[['mooring_number']]
-  # }
-  # if(!is.null(adp[['mooringNumber']])){
-  #   mooring <- adp[['mooringNumber']]
-  # }
-  # if(!is.null(adp[['station']])){
-  #   mooring <- adp[['station']]
-  # }
-  
-  #plotpath <- paste0(path, '/Plots/M', mooring) #H. Hourston
-  plotpath <- path
-  
-  if (dir.exists(plotpath)){
-    
-  }else{
-    #dir.create(paste0(path, '/Plots/M', mooring), recursive = TRUE)
-    #dir.create(paste0(path, '/Plots'), recursive = TRUE)
-  }
-  
-  
-  
-  
   #general first look plots
-  pdf( file = paste0(plotpath, '/PreProcessingPlots.pdf'))
+  pdf(file = paste0(path, '/PreProcessingPlots.pdf'))
   plot(adp, which = 1, title = 'LCEWAP01: PreProcessing')  #u
   mtext('m/s', side = 4)
   plot(adp, which = 2, title = 'LCNSAP01: PreProcessing')  #v
   mtext('m/s', side = 4)
   plot(adp, which = 3, title = 'LRZAAP01: PreProcessing')  #w
   mtext('m/s', side = 4)
+  
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity preprocessing plot')
@@ -3885,7 +3713,7 @@ startPlots <- function(adp, path){
   }
   plot(adp, which = 15, main = 'Pressure: PreProcessing') #pressure
   dev.off()
-  print(paste("PreProcessingPlots.pdf created in", plotpath))
+  print(paste("PreProcessingPlots.pdf created in", path))
 }
 
 #' Bin Plot
@@ -3906,28 +3734,6 @@ startPlots <- function(adp, path){
 #' binPlot(adp, x = adp[['v']][,,1])
 binPlot <- function(adp, x, path){
   
-  #Commented out by H.Hourston June 26, 2019
-  # if (!is.null(adp[['mooring_number']])){
-  #   mooring <- adp[['mooring_number']]
-  # }
-  # if(!is.null(adp[['mooringNumber']])){
-  #   mooring <- adp[['mooringNumber']]
-  # }
-  # if(!is.null(adp[['station']])){
-  #   mooring <- adp[['station']]
-  # }
-  
-  #plotpath <- paste0(path, '/Plots/M', mooring)
-  plotpath <- path #H.Hourston
-  
-  #if (dir.exists(plotpath)){
-    
-  #}else{
-    #dir.create(paste0(path, '/Plots/M', mooring), recursive = TRUE)
-    #dir.create(paste0(path, '/Plots'), recursive = TRUE)
-  #}
-  
-  
   #H.Hourston Aug 21, 2019
   if (isTRUE(all.equal(x, adp[['v']][,,1]))){
     vel = 'u'
@@ -3941,7 +3747,6 @@ binPlot <- function(adp, x, path){
     stop(paste('Velocity variable has dimensions', dim(adp[['v']]), '. The dimension specified is not valid.'))
   }
   
-  
   # H.Hourston Aug 26, 2019: Check if error velocity is only composed of NAs; if so don't plot
   if (vel == 'er' & all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity bin plot')
@@ -3949,13 +3754,12 @@ binPlot <- function(adp, x, path){
     #save bin plots to pdf #Mooring_number changed to station and station number by H.Hourston June 26, 2019
     #H.Hourston July 26, 2019: Remove station_number from name after station
     name <- paste('binbybinplot', vel, adp[['station']], sep = '_') #name pdf
-    pdf(paste0(plotpath,'/', name, '.pdf') , width = 8, height = 40 ) #save to pdf
+    pdf(paste0(path,'/', name, '.pdf') , width = 8, height = 40 ) #save to pdf
     par(mfrow = c(15, 1)) #set number of plots per page (rows, columns)
     #cat(paste('Bin Plot of mooring', adp[['mooring_number']], 'from cruise', adp[['cruise_number']], 'with data from', adp[['time_coverage_start']], 'to', adp[['time_coverage_end']], sep = '  '))
     plotBin(x)
     dev.off() #close pdf
-    print(paste(paste0(name, ".pdf"), "created in", plotpath))
-  
+    print(paste(paste0(name, ".pdf"), "created in", path))
   }
 }
 
@@ -3972,30 +3776,10 @@ binPlot <- function(adp, x, path){
 #' @examples
 endPlots <- function(adpClean, path){
   
-  #Commented out by H.Hourston June 26, 2019
-  # if (!is.null(adpClean[['mooring_number']])){
-  #   mooring <- adpClean[['mooring_number']]
-  # }
-  # if(!is.null(adpClean[['mooringNumber']])){
-  #   mooring <- adpClean[['mooringNumber']]
-  # }
-  # if(!is.null(adpClean[['station']])){
-  #   mooring <- adpClean[['station']]
-  # }
-  #plotpath <- paste0(path, '/Plots/M', mooring) #H. Hourston
-  plotpath <- path
-  
-  if (dir.exists(plotpath)){
-    
-  }else{
-    #dir.create(paste0(path, '/Plots/M', mooring), recursive = TRUE)
-    #dir.create(paste0(path, '/Plots'), recursive = TRUE)
-  }
-  
   level <- adpClean[['processing_level']]
   
-  #check plots
-  pdf(paste0(plotpath, sprintf('/PostProcessing_L%s.pdf', level)))
+  # check plots
+  pdf(paste0(path, sprintf('/PostProcessing_L%s.pdf', level)))
   #     looking for any spikes on either end of dataset
   plot(adp[['depth']], main = sprintf('Depth: PostProcessing L%s', level), xlab = 'time (seconds)', ylab = 'Depth (m)', lty = 2)
   
@@ -4009,6 +3793,7 @@ endPlots <- function(adpClean, path){
   mtext('m/s', side = 4)
   plot(adpClean, which = 3, title = sprintf('LRZAAP01: PostProcessing L%s', level))
   mtext('m/s', side = 4)
+  
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity postprocessing plot')
@@ -4019,7 +3804,7 @@ endPlots <- function(adpClean, path){
   #     plot echo intensity
   plot_ei(adpClean, main = 'Echo Intensity')
   dev.off()
-  print(paste("PostProcessingPlots.pdf created in", plotpath))
+  print(paste("PostProcessingPlots.pdf created in", path))
   
 }
 
@@ -4053,41 +3838,19 @@ endPlots <- function(adpClean, path){
 #' @examples
 qcPlots <- function(adp, QC, path){
   
-  # Commented out by H.Hourston June 26, 2019
-  # if (!is.null(adp[['mooring_number']])){
-  #   mooring <- adp[['mooring_number']]
-  # }
-  # if(!is.null(adp[['mooringNumber']])){
-  #   mooring <- adp[['mooringNumber']]
-  # }
-  # if(!is.null(adp[['station']])){
-  #   mooring <- adp[['station']]
-  #}
-  #plotpath <- paste0(path, '/Plots/M', mooring) H. Hourston June 21, 2019
-  plotpath <- path
-  
-  # if (dir.exists(plotpath)){
-  #   
-  # }else{
-  #   dir.create(paste0(path, '/Plots/M', mooring), recursive = TRUE)
-  #   dir.create(paste0(path, '/Plots'), recursive = TRUE)
-  # }
-  
-  
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (QC == 'er' & all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity qc bin plot')
   } else {
-    #H.Hourston July 26, 2019: Remove mooring_number from name
-    name <- paste('binbybinplot', QC, adp[['station']], sep = '_')
+    name <- paste('binbybinplot', QC, adp[['station']], paste0('L', adp[['processing_level']], '.pdf'), sep = '_')
     
-    #     check any other relvant plots to confirm QC before exporting
+    # check any other relvant plots to confirm QC before exporting
     # processing_level part of pdf name changed from '_QC'
-    pdf(paste0(plotpath,'/', name, sprintf('_L%s.pdf', adp[['processing_level']])) , width = 8, height = 40 ) #save to pdf
+    pdf(paste0(path,'/', name) , width = 8, height = 40 ) #save to pdf
     par(mfrow = c(15, 1)) #set number of plots per page (rows, columns)
     plotQC(adp, QC = QC)
     dev.off() #close pdf
-    print(paste(paste0(name, ".pdf"), "created in", plotpath))
+    print(paste(name, "created in", path))
   }
 }
 
@@ -4103,11 +3866,13 @@ qcPlots <- function(adp, QC, path){
 #' @examples
 plotMap <- function(adp){
   require('maps')
+  pdf('mapPlot.pdf')
   lat <- adp[['latitude']]
   lon <- adp[['longitude']]
   maps::map(plot = TRUE, xlim = c(lon-20, lon+20), ylim = c(lat-20, lat+20), fill = TRUE, col = 'green')
   par(new = TRUE)
   points(lon, lat, col = 'red')
+  dev.off()
 }
 
 ####GF3 2 P01####
@@ -4124,8 +3889,6 @@ plotMap <- function(adp){
 #' @examples
 as.P01 <- function(gf3){
   gf32p01 <- read.csv('c:/Users/ChisholmE/Documents/sample files/GF3 Code Map.csv', header = TRUE)
-  
-  
   
   line <- grep(gf32p01$GF3.code, pattern = gf3)
   
