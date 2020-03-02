@@ -17,7 +17,7 @@ This repository is under construction.
   To install ADCP in R:
   
     library(devtools)
-    install_github("hhourston/mooredDataProcessing_adcp")
+    install_github("hhourston/mooredDataProcessing_adcp", ref="master")
   
 ## Documentation of dependencies
   `oce`: https://cran.r-project.org/web/packages/oce/oce.pdf \
