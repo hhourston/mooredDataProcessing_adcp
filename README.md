@@ -20,7 +20,7 @@ This repository is under construction.
     install_github("hhourston/mooredDataProcessing_adcp")
   
 ## Documentation of dependencies
-  `oce`: https://cran.r-project.org/web/packages/oce/oce.pdf
+  `oce`: https://cran.r-project.org/web/packages/oce/oce.pdf \
   `ncdf4`: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 
 ## Usage
