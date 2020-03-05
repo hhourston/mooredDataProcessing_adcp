@@ -7,6 +7,8 @@ Currently, there is only one low level of processing supported by this package (
   To install dependencies in R:
   
     install.packages("devtools")
+    install.packages("testthat")
+    install.packages("gsw")
     install_github("dankelley/oce", ref="develop")
     install_github("dankelley/ocedata", ref="master")
     install.packages("ncdf4")
