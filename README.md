@@ -14,7 +14,7 @@ Currently, there is only one low level of processing supported by this package (
     install.packages("ncdf4")
     install.packages("maps")
   
-  The `oce` "develop" version is installed because it uses IGRF-13 for magnetic field calculations while the "master" version still uses IGRF-12. See https://github.com/dankelley/oce/issues/1473 for more.
+  The `oce` "develop" version is installed because it uses the 13th generation of the International Geomagnetic Reference Field (IGRF-13) for magnetic field calculations while the "master" version still uses IGRF-12. See https://github.com/dankelley/oce/issues/1473 for more.
   
   To install ADCP in R:
   
