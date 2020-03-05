@@ -14,6 +14,8 @@ Currently, there is only one low level of processing supported by this package (
     install.packages("ncdf4")
     install.packages("maps")
   
+  The `oce` "develop" version is installed because it uses IGRF-13 for magnetic field calculations while the "master" version still uses IGRF-12. See https://github.com/dankelley/oce/issues/1473 for more.
+  
   To install ADCP in R:
   
     library(devtools)
@@ -26,7 +28,7 @@ Currently, there is only one low level of processing supported by this package (
 ## Usage
   Please see the repository https://github.com/hhourston/ADCP_processing_visualization for usage instructions. A sample script called *ADCP_lvl1_process.R* that makes use of this package can be found in this repository along with a csv metadata template, a sample raw file, filled-out csv metadata file and output netCDF file, and R and Python scripts for viewing and plotting netCDF file data.
   
-  A version of this script that is callable from Python can be found at https://github.com/hhourston/ADCP_processing_visualization/tree/master/callR_fromPython. A sample Python script that runs this R script can also be found in that folder.
+  A version of this script that is callable from Python can be found at https://github.com/hhourston/ADCP_processing_visualization/tree/master/callR_fromPython. A sample Python script that runs this R script can also be found in that folder. Usage instructions can be found in https://github.com/hhourston/ADCP_processing_visualization.
   
 ## Credits
   `ADCP` was created by Emily Chisholm (https://github.com/Echisholm21).
