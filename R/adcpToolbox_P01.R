@@ -128,15 +128,21 @@ applyMagneticDeclinationAdp <- function(x, lat = x[['latitude']], lon = x[['long
       if(!is.null(st) & !is.null(et)){
         s <- as.POSIXct(st, tz = tz)
         e <- as.POSIXct(et, tz = tz)
-        a <- magneticField(lon, lat, s)
-        b <- magneticField(lon, lat, e)
-        c <- round(mean(c(a$declination, b$declination)),digits = 2)
+        # a <- magneticField(lon, lat, s) # This is not the method used at IOS
+        # b <- magneticField(lon, lat, e)
+        # c <- round(mean(c(a$declination, b$declination)),digits = 2)
+        
+        # H.Hourston Mar 5, 2020: Change average calculation by taking average date of timeseries and calculating the magnetic declination at that date
+        m1 <- as.integer(as.POSIXct(s, tz = 'UTC', origin = '1970-01-01 00:00:00')) + (as.integer(as.POSIXct(e, tz = 'UTC', origin = '1970-01-01 00:00:00')) - as.integer(as.POSIXct(s, tz = 'UTC', origin = '1970-01-01 00:00:00')))/2 #calculate middle date of timeseries in seconds since origin
+        m2 <- as.POSIXct(m1, tz = 'UTC', origin = '1970-01-01 00:00:00')
+        m <- format(m2, '%Y-%m-%d %H:%M:%S', usetz = T) #needed otherwise "midnight" 00:00:00 times only maintain the date and not the time
+        c <- magneticField(lon, lat, m) #determine magnetic declination at middle date
+        c1 <- round(c$declination, digits = 2)
         coord <- x@metadata$oceCoordinate
         
-        
         if (coord == 'enu'){
-          x <- enuToOther(x, heading = c)
-          x@metadata$magnetic_variation <- c
+          x <- enuToOther(x, heading = c1)
+          x@metadata$magnetic_variation <- c1
           x@metadata$oceCoordinate <- 'enu'
         }
         if (coord != 'enu'){
@@ -147,7 +153,7 @@ applyMagneticDeclinationAdp <- function(x, lat = x[['latitude']], lon = x[['long
       else {
         warning('Missing required arguments! No processing performed!')
       }
-      x@processingLog <- processingLogAppend(x@processingLog, value = paste0('magnetic variation, using average applied; declination =', c, 'degrees') )
+      x@processingLog <- processingLogAppend(x@processingLog, value = paste0('magnetic variation, using average applied; declination =', c1, 'degrees') )
     }
     if (type == 'interpolate'){
       t <- x[['time']]
