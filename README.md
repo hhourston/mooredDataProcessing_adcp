@@ -10,7 +10,7 @@ File types supported:
 - ".000", ".664" (corresponding to Teledyne RDI Narrowband, Broadband, and Workhorse instruments)
 - ".pd0", ".PD0" (corresponding to Teledyne RDI Sentinel V instruments)
 
-File types not supported by:
+File types not supported:
 - ".001" (same file format as ".000" and ".664")
 - ".arg" (corresponding to Sontek Argonaut XR Multi-Cell Doppler Current Profiler instruments): See `oce` support issue at https://github.com/dankelley/oce/issues/1637
 
