@@ -1,7 +1,21 @@
 # ADCP
-`ADCP` is an R package that allows the user to open raw ADCP files, perform QA/QC procedures on them, create preliminary and QA/QC plots from them, and export ADCP data in netCDF format. `ADCP` acts as an intermediary between the user and the R packages `oce`, written by Dan Kelley and Clark Richards, and `ncdf4`, written by David Pierce. `ADCP` was written by Emily Chisholm for processing of moored ADCP data at the Bedford Institute of Ocean Sciences, NS. This version is customized for the Institute of Ocean Sciences, BC. All modifications to the package were made in the adcpToolbox_P01.R file; the rest of the files are unchanged.
+`ADCP` is an R package that allows the user to open raw ADCP files, perform QA/QC procedures on them, create preliminary and QA/QC plots from them, and export ADCP data in netCDF format. `ADCP` acts as an intermediary between the user and the R packages `oce`, written by Dan Kelley and Clark Richards, and `ncdf4`, written by David Pierce. `ADCP` was written by Emily Chisholm for processing of moored ADCP data at the Bedford Institute of Ocean Sciences, NS. This version is customized for the Institute of Ocean Sciences, BC. 
+
+All modifications to the package were made in the adcpToolbox_P01.R file; the rest of the files are unchanged.
 
 Currently, there is only one low level of processing supported by this package (level 1). This level comprises setting leading and trailing ensembles of a raw ADCP dataset that were taken during deployment and recovery to NA's and applying magnetic declination to the dataset.
+
+## Raw ADCP file types supported
+File types supported:
+- ".000", ".664" (corresponding to Teledyne RDI Narrowband, Broadband, and Workhorse instruments)
+- ".pd0", ".PD0" (corresponding to Teledyne RDI Sentinel V instruments)
+
+File types not supported by:
+- ".001" (same file format as ".000" and ".664")
+- ".arg" (corresponding to Sontek Argonaut XR Multi-Cell Doppler Current Profiler instruments): See `oce` support issue at https://github.com/dankelley/oce/issues/1637
+
+File types for which support is unknown:
+- ".666" (same file format as ".000" and ".664")
 
 ## Installation
   To install dependencies in R:
