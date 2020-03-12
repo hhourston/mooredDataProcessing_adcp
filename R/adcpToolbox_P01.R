@@ -134,8 +134,8 @@ applyMagneticDeclinationAdp <- function(x, lat = x[['latitude']], lon = x[['long
         
         # H.Hourston Mar 5, 2020: Change average calculation by taking average date of timeseries and calculating the magnetic declination at that date
         m1 <- as.integer(as.POSIXct(s, tz = 'UTC', origin = '1970-01-01 00:00:00')) + (as.integer(as.POSIXct(e, tz = 'UTC', origin = '1970-01-01 00:00:00')) - as.integer(as.POSIXct(s, tz = 'UTC', origin = '1970-01-01 00:00:00')))/2 #calculate middle date of timeseries in seconds since origin
-        m2 <- as.POSIXct(m1, tz = 'UTC', origin = '1970-01-01 00:00:00')
-        m <- format(m2, '%Y-%m-%d %H:%M:%S', usetz = T) #needed otherwise "midnight" 00:00:00 times only maintain the date and not the time
+        m <- as.POSIXct(m1, tz = 'UTC', origin = '1970-01-01 00:00:00')
+        # m <- format(m2, '%Y-%m-%d %H:%M:%S', usetz = T) #needed otherwise "midnight" 00:00:00 times only maintain the date and not the time
         c <- magneticField(lon, lat, m) #determine magnetic declination at middle date
         c1 <- round(c$declination, digits = 2)
         coord <- x@metadata$oceCoordinate
