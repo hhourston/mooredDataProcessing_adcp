@@ -784,8 +784,7 @@ oceNc_create <- function(adp, name, metadata){
   stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
   londim <- ncdim_def("lon", "degrees_east" , as.double(lon))
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
-  dimnchar <- ncdim_def('nchar', '', 1:23, create_dimvar = FALSE)
-  
+  dimnchar <- ncdim_def('nchar', '', 1:100, create_dimvar = FALSE) # Set maximum character value length; it is 100 characters here. Names longer than 100 letters will be truncated
   
   #set fill value
   FillValue <- 1e35
@@ -793,9 +792,6 @@ oceNc_create <- function(adp, name, metadata){
   if (adp@metadata$source == 'raw'){
     
     #define variables
-    dlname <- 'filename'
-    fn_def <- ncvar_def(name = dlname, units = '', dim = stationdim, prec = 'char') #optional "longname" argument omitted
-    
     print('setting lon and lat definitions')
     dlname <- 'longitude'
     lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = stationdim, longname = dlname, prec = 'double')
@@ -892,12 +888,15 @@ oceNc_create <- function(adp, name, metadata){
     dlname <- "DTUT8601"
     ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, prec = "char")
     
-    ###H.Hourston Feb 13, 2020: Add missing variables that were previously just global attributes
+    ###H.Hourston Feb 13, 2020: Add character-type variables
+    dlname <- 'filename'
+    fn_def <- ncvar_def(name = dlname, units = "", dim = list(dimnchar, stationdim), prec = 'char') #optional "longname" argument omitted
+    
     dlname <- "instrument_model"
-    im_def <- ncvar_def("instrument_model", units = "", dim = stationdim, prec = "char") #shouldn't have fillvalue
+    im_def <- ncvar_def("instrument_model", units = "", dim = list(dimnchar, stationdim), prec = "char") #shouldn't have fillvalue
     
     dlname <- "instrument_serial_number"
-    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = stationdim, prec = "char") #shouldn't have fillvalue
+    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = list(dimnchar, stationdim), prec = "char") #shouldn't have fillvalue
     ###
 
     #H.Hourston Aug 29, 2019: Encountered a Sentinel V instrument without percent good data, so omit if the case
@@ -1017,7 +1016,6 @@ oceNc_create <- function(adp, name, metadata){
   ncvar_put(ncout, lat_def, adp[['latitude']])
   ncvar_put(ncout, lon2_def, adp[['longitude']])
   ncvar_put(ncout, lat2_def, adp[['latitude']])
-  ncvar_put(ncout, fn_def, ncname)
   
   if (adp@metadata$source == 'raw'){
     # Assign data values to the variables
@@ -1077,8 +1075,9 @@ oceNc_create <- function(adp, name, metadata){
       model = ''
       lr = ''
     }
-    ncvar_put(ncout, im_def, sprintf('RDI %s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], lr, adp[['frequency']], adp[['serialNumber']]))
-    ncvar_put(ncout, isn_def, paste0(model, adp[['serialNumber']]))
+    ncvar_put(ncout, im_def, vals = c(sprintf('RDI %s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], lr, adp[['frequency']], adp[['serialNumber']])))
+    ncvar_put(ncout, isn_def, vals = c(paste0(model, adp[['serialNumber']])))
+    ncvar_put(ncout, fn_def, vals = c(ncname))
     
   }
   if (adp@metadata$source == 'odf'){
