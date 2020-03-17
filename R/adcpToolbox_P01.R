@@ -1060,22 +1060,18 @@ oceNc_create <- function(adp, name, metadata){
     
     #H.Hourston Feb 13, 2020: Add missing variables from global attributes
     if (adp[['instrumentSubtype']] == 'Workhorse' | adp[['instrumentSubtype']] == 'WorkHorse' | adp[['instrumentSubtype']] == 'WH'){
-      model = 'WH'
-      lr = 'Long Ranger'
+      model = 'RDI WH Long Ranger'
     } else if (adp[['instrumentSubtype']] == 'Broadband' | adp[['instrumentSubtype']] == 'BroadBand' | adp[['instrumentSubtype']] == 'BB'){
-      model = 'BB'
-      lr = ''
+      model = 'RDI BB'
     } else if (adp[['instrumentSubtype']] == 'Narrowband' | adp[['instrumentSubtype']] == 'NarrowBand' | adp[['instrumentSubtype']] == 'B'){
-      model = 'NB'
-      lr = ''
+      model = 'RDI NB'
     } else if (adp[['instrumentSubtype']] == 'Sentinel V'){
-      model = 'SV'
-      lr = ''
+      model = 'RDI SV'
     } else {
       model = ''
-      lr = ''
+      warning('No instrumentSubtype given')
     }
-    ncvar_put(ncout, im_def, vals = c(sprintf('RDI %s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], lr, adp[['frequency']], adp[['serialNumber']])))
+    ncvar_put(ncout, im_def, vals = c(sprintf('%s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], adp[['frequency']], adp[['serialNumber']])))
     ncvar_put(ncout, isn_def, vals = c(paste0(model, adp[['serialNumber']])))
     ncvar_put(ncout, fn_def, vals = c(ncname))
     
@@ -1599,7 +1595,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "pings_per_ensemble", adp[['pingsPerEnsemble']])
     ncatt_put(ncout, 0, "valid_correlation_range", adp[['lowCorrThresh']])
     ncatt_put(ncout, 0, "minmax_percent_good", adp[['percentGdMinimum']])
-    ncatt_put(ncout, 0,"minmax_percent_good", "100")
+    ncatt_put(ncout, 0, "minmax_percent_good", "100")
     ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']])
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
@@ -1668,8 +1664,7 @@ oceNc_create <- function(adp, name, metadata){
     if (adp[['orientation']] == 'up'){
       ncatt_put(ncout, 0, "geospatial_vertical_min", adp[['sensor_depth']] + max(adp[['distance']], na.rm = TRUE))
       ncatt_put(ncout, 0, "geospatial_vertical_max", adp[['sensor_depth']] + min(adp[['distance']], na.rm = TRUE))
-    }
-    if (adp[['orientation']] == 'down'){
+    } else if (adp[['orientation']] == 'down'){
       ncatt_put(ncout, 0, "geospatial_vertical_min", adp[['sensor_depth']] + min(adp[['distance']], na.rm = TRUE))
       ncatt_put(ncout, 0, "geospatial_vertical_max", adp[['sensor_depth']] + max(adp[['distance']], na.rm = TRUE))
     }
