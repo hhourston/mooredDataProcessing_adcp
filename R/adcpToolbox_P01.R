@@ -1060,18 +1060,23 @@ oceNc_create <- function(adp, name, metadata){
     
     #H.Hourston Feb 13, 2020: Add missing variables from global attributes
     if (adp[['instrumentSubtype']] == 'Workhorse' | adp[['instrumentSubtype']] == 'WorkHorse' | adp[['instrumentSubtype']] == 'WH'){
-      model = 'RDI WH Long Ranger'
+      model_long = 'RDI WH Long Ranger'
+      model = 'WH'
     } else if (adp[['instrumentSubtype']] == 'Broadband' | adp[['instrumentSubtype']] == 'BroadBand' | adp[['instrumentSubtype']] == 'BB'){
-      model = 'RDI BB'
+      model_long = 'RDI BB'
+      model = 'BB'
     } else if (adp[['instrumentSubtype']] == 'Narrowband' | adp[['instrumentSubtype']] == 'NarrowBand' | adp[['instrumentSubtype']] == 'B'){
-      model = 'RDI NB'
+      model_long = 'RDI NB'
+      model = 'NB'
     } else if (adp[['instrumentSubtype']] == 'Sentinel V'){
-      model = 'RDI SV'
+      model_long = 'RDI SV'
+      model = 'SV'
     } else {
+      model_long = ''
       model = ''
       warning('No instrumentSubtype given')
     }
-    ncvar_put(ncout, im_def, vals = c(sprintf('%s %s ADCP %skHz (%s)', adp[['instrumentSubtype']], adp[['frequency']], adp[['serialNumber']])))
+    ncvar_put(ncout, im_def, vals = c(sprintf('%s ADCP %skHz (%s)', model_long, adp[['frequency']], paste0(model, adp[['serialNumber']]))))
     ncvar_put(ncout, isn_def, vals = c(paste0(model, adp[['serialNumber']])))
     ncvar_put(ncout, fn_def, vals = c(ncname))
     
