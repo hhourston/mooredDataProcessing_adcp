@@ -1299,7 +1299,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'LCEWAP01', "generic_name", "u")
     ncatt_put(ncout, 'LCNSAP01', "generic_name", "v")
     ncatt_put(ncout, 'LRZAAP01', "generic_name", "w")
-    ncatt_put(ncout, 'LERRAP01', "generic_name", "w")       #issue in current NC protocol
+    ncatt_put(ncout, 'LERRAP01', "generic_name", "e")       #issue in current NC protocol #H.Hourston changed from "w" to "e"
     ncatt_put(ncout, 'TNIHCE01', "generic_name", "AGC")
     ncatt_put(ncout, 'TNIHCE02', "generic_name", "AGC")
     ncatt_put(ncout, 'TNIHCE03', "generic_name", "AGC")
@@ -1463,9 +1463,9 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'TNIHCE03', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
     ncatt_put(ncout, 'TNIHCE04', "sdn_parameter_name", "Echo intensity from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
     ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 1")
-    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
-    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
-    ncatt_put(ncout, 'CMAGZZ01', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
+    ncatt_put(ncout, 'CMAGZZ02', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 2")
+    ncatt_put(ncout, 'CMAGZZ03', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 3")
+    ncatt_put(ncout, 'CMAGZZ04', "sdn_parameter_name", "Correlation magnitude of acoustic signal returns from the water body by moored acoustic doppler current profiler (ADCP) beam 4")
     
     # H.Hourston Feb 17, 2020: Sentinel V vertical beam velocities ***NEED BODC CODES
     if (adp[['instrumentSubtype']] != 'Sentinel V'){
