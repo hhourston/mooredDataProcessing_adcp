@@ -1101,7 +1101,7 @@ oceNc_create <- function(adp, name, metadata){
   ncatt_put(ncout, 0, "time_coverage_end", adp[['time_coverage_end']])
   ncatt_put(ncout, 0, "time_coverage_duration", (tail(adp[['time']], n = 1) - adp[['time']][[1]]))
   # deprecated M. Oulliet 4/11/2019
-  # ncatt_put(ncout, 0, "time_coverage_duration_units", "days")
+  ncatt_put(ncout, 0, "time_coverage_duration_units", "days")
   ncatt_put(ncout, 0, "cdm_data_type", "station")
   # Commented out H.Hourston June 27, 2019
   #ncatt_put(ncout, 0, "alternate_pressure_values", adp[['alternate_pressure_values']])
@@ -1203,7 +1203,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "valid_correlation_range", adp[['lowCorrThresh']])
     ncatt_put(ncout, 0, "minmax_percent_good", adp[['percentGdMinimum']])
     ncatt_put(ncout, 0, "minmax_percent_good", "100")
-    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
+    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/sec'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']]*100)
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
     
