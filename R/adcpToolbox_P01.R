@@ -275,8 +275,8 @@ limit_depthbytime <- function(adp, tz = 'UTC'){
   adp@metadata$sensor_depth <- mdt
   adp@metadata$depthMean <- mdt
   adp@data$depth <- depth
-  adp@processingLog <- processingLogAppend(adp@processingLog, paste0('Depth limited by deployment (', adp[['time_coverage_start']], ') and recovery  (', adp[['time_coverage_end']], ')  times'))
-  adp@processingLog <- processingLogAppend(adp@processingLog, paste0('Sensor depth and mean depth set to  ', mdt , '  based on trimmed depth values'))
+  adp@processingLog <- processingLogAppend(adp@processingLog, paste0('Depth limited by deployment (', adp[['time_coverage_start']], ') and recovery  (', adp[['time_coverage_end']], ') times'))
+  adp@processingLog <- processingLogAppend(adp@processingLog, paste0('Sensor depth and mean depth set to ', mdt , '  based on trimmed depth values'))
   
   return(adp)
 }
@@ -778,7 +778,7 @@ oceNc_create <- function(adp, name, metadata){
   
   #create dimensions
   timedim <- ncdim_def("time", "seconds since 1970-01-01T00:00:00Z", as.double(time))    #time formatting FIX
-  distdim <- ncdim_def("distance", "metres", as.double(dist))
+  distdim <- ncdim_def("distance", "metres", as.double(dist), longname = "bin_distances_from ADCP_transducer_along_measurement_axis")
   stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
   londim <- ncdim_def("lon", "degrees_east" , as.double(lon))
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
@@ -813,7 +813,7 @@ oceNc_create <- function(adp, name, metadata){
     w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
-    t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list( stationdim, timedim), FillValue, dlname, prec = 'double')
+    t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim, stationdim), FillValue, dlname, prec = 'double')
     
     dlname <- "error_velocity_in_sea_water"
     e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
@@ -1125,6 +1125,8 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
     ncatt_put(ncout, 0, "data_type", adp[['instrumentType']])
     ncatt_put(ncout, 0, "pred_accuracy", adp[['velocityResolution']]*1000)
+    ncatt_put(ncout, 0, "n_codereps", adp[['numberOfCodeReps']])
+    ncatt_put(ncout, 0, "xmit_lag", adp[['transmitLagDistance']])
     ncatt_put(ncout, 0, "project", adp[['project']])
     ncatt_put(ncout, 0, "history", adp[['history']])
     ncatt_put(ncout, 0, "flag_meanings", adp[['flag_meaning']]) #not in adp object June 20, 2019/ June 29, 2019 this metadata item added tp csv metadata template
@@ -1189,6 +1191,8 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, "DTUT8601", 'time_zone', 'UTC')
     
     # sensor_type, sensor_depth, instrument_serial_number attributes
+    
+    # Add to all variables except PCGDAP00-4 first
     for (var in c('LCEWAP01', 'LCNSAP01', 'LRZAAP01', 'LERRAP01', 'TNIHCE01', 'TNIHCE02', 'TNIHCE03', 'TNIHCE04', 'CMAGZZ01', 'CMAGZZ02', 'CMAGZZ03', 'CMAGZZ04', 'HEADCM01', 'PRESPR01', 'SVELCV01', 'DISTTRAN', 'PPSAADCP', 'TEMPPR01')){
       ncatt_put(ncout, var, 'sensor_type', adp[['instrumentType']])
       ncatt_put(ncout, var, 'sensor_depth', adp[['sensor_depth']])
