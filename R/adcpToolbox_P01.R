@@ -778,7 +778,7 @@ oceNc_create <- function(adp, name, metadata){
   
   #create dimensions
   timedim <- ncdim_def("time", "seconds since 1970-01-01T00:00:00Z", as.double(time))    #time formatting FIX
-  distdim <- ncdim_def("distance", "metres", as.double(dist), longname = "bin_distances_from ADCP_transducer_along_measurement_axis")
+  distdim <- ncdim_def("distance", "metres", as.double(dist), longname = "bin_distances_from_ADCP_transducer_along_measurement_axis")
   stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
   londim <- ncdim_def("lon", "degrees_east" , as.double(lon))
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
