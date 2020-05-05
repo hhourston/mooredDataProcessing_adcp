@@ -802,7 +802,7 @@ oceNc_create <- function(adp, name, metadata){
     
     #define variables
     dlname <- 'station' #in order to have character values
-    stn_def <- ncvar_def(name = dlname, units = '', dim = list(dimnchar, stationdim), '', prec = 'char')
+    stn_def <- ncvar_def(name = dlname, units = '', dim = list(dimnchar, stationdim), prec = 'char')
     
     dlname <- 'longitude'
     lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = stationdim, longname = dlname, prec = 'double')
