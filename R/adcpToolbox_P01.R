@@ -793,7 +793,7 @@ oceNc_create <- function(adp, name, metadata){
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
   dimnchar <- ncdim_def('nchar', '', 1:100, create_dimvar = FALSE) # Set maximum character value length, 100 characters here. Names longer than 100 letters will be truncated. Formerly max=24 char
   #stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
-  stationdim <- ncdim_def("station", 1:nsta, create_dimvar = FALSE) #station name; need to make a vector?
+  stationdim <- ncdim_def("station", '', 1:nsta, create_dimvar = FALSE) #station name; need to make a vector?
   
   #set fill value
   FillValue <- 1e35
