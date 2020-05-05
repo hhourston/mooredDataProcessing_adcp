@@ -805,16 +805,16 @@ oceNc_create <- function(adp, name, metadata){
     #stn_def <- ncvar_def(name = dlname, units = '', dim = list(dimnchar, stationdim), prec = 'char')
     
     dlname <- 'longitude'
-    lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = stationdim, longname = dlname, prec = 'double')
+    lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = list(), longname = dlname, prec = 'double') #no dims
     
     dlname <- 'latitude'
-    lat_def <- ncvar_def(name = 'ALATZZ01', units = 'degrees_north', dim =  stationdim, longname = dlname, prec = 'double')
+    lat_def <- ncvar_def(name = 'ALATZZ01', units = 'degrees_north', dim = list(), longname = dlname, prec = 'double')
     
     dlname <- 'longitude'
-    lon2_def <- ncvar_def(name = dlname, units = 'degrees_east', dim = stationdim, prec = 'double')
+    lon2_def <- ncvar_def(name = dlname, units = 'degrees_east', dim = list(), prec = 'double')
     
     dlname <- 'latitude'
-    lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = stationdim, prec = 'double')
+    lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = list(), prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
     u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
