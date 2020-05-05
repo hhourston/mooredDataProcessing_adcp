@@ -1195,10 +1195,10 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'PPSAADCP', "bin_size", adp[['cellSize']])
     
     # station, time, and DTUT8601 var attributes
-    ncatt_put(ncout, "station", 'longitude', adp[['longitude']])
-    ncatt_put(ncout, "station", 'latitude', adp[['latitude']])
-    ncatt_put(ncout, 'station', attname = 'cf_role',attval =  'timeseries_id')
-    ncatt_put(ncout, 'station', 'standard_name', 'platform_name')
+    #ncatt_put(ncout, "station", 'longitude', adp[['longitude']])
+    #ncatt_put(ncout, "station", 'latitude', adp[['latitude']])
+    #ncatt_put(ncout, 'station', attname = 'cf_role',attval =  'timeseries_id')
+    #ncatt_put(ncout, 'station', 'standard_name', 'platform_name')
     ncatt_put(ncout, 'time', attname = 'cf_role', attval = 'profile_id')
     ncatt_put(ncout, 'time' , 'calendar', 'gregorian')
     ncatt_put(ncout, "DTUT8601", 'note', 'time values as ISO8601 string, YY-MM-DD hh:mm:ss')
