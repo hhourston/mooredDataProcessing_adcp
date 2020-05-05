@@ -780,13 +780,20 @@ oceNc_create <- function(adp, name, metadata){
   adp <- oceSetMetadata(adp, 'sensor_depth', mean(adp[['depth']], na.rm= TRUE), note = NULL)
   
   #create dimensions
+  
+  #first build components of station dimension
+  station_name <- c(adp[['station']])
+  nsta <- length(station_name)
+  station_lon <- c(lon)
+  station_lat <- c(lat)
+  
   timedim <- ncdim_def("time", "seconds since 1970-01-01T00:00:00Z", as.double(time))    #time formatting FIX
   distdim <- ncdim_def("distance", "metres", as.double(dist), longname = "bin_distances_from_ADCP_transducer_along_measurement_axis")
-  #stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
-  stationdim <- ncdim_def("station", "", adp[['station']]) #station name; need to make a vector?
   londim <- ncdim_def("lon", "degrees_east" , as.double(lon))
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
   dimnchar <- ncdim_def('nchar', '', 1:100, create_dimvar = FALSE) # Set maximum character value length, 100 characters here. Names longer than 100 letters will be truncated. Formerly max=24 char
+  #stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
+  stationdim <- ncdim_def("station", 1:nsta, create_dimvar = FALSE) #station name; need to make a vector?
   
   #set fill value
   FillValue <- 1e35
@@ -794,7 +801,9 @@ oceNc_create <- function(adp, name, metadata){
   if (adp@metadata$source == 'raw'){
     
     #define variables
-    print('setting lon and lat definitions')
+    dlname <- 'station' #in order to have character values
+    stn_def <- ncvar_def(name = dlname, units = '', dim = list(dimnchar, stationdim), missval = '', prec = 'char')
+    
     dlname <- 'longitude'
     lon_def <- ncvar_def(name = 'ALONZZ01', units = 'degrees_east', dim = stationdim, longname = dlname, prec = 'double')
     
@@ -932,12 +941,12 @@ oceNc_create <- function(adp, name, metadata){
     #write out definitions to new nc file
     print('Finished creating variables')
     if (adp[['instrumentSubtype']] == 'Sentinel V'){
-      ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, 
+      ncout <- nc_create(ncfname, list(stn_def, fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, 
                                        vb_a_def, vb_cm_def, vb_pg_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, 
                                        qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, 
                                        svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
     } else { #NOT SENTINEL V
-      ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, 
+      ncout <- nc_create(ncfname, list(stn_def, fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, 
                                        pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, 
                                        qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, 
                                        svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
@@ -999,6 +1008,7 @@ oceNc_create <- function(adp, name, metadata){
   ncvar_put(ncout, lat_def, adp[['latitude']])
   ncvar_put(ncout, lon2_def, adp[['longitude']])
   ncvar_put(ncout, lat2_def, adp[['latitude']])
+  ncvar_put(ncout, stn_def, station_name, start = c(1,1), count = c(-1, nsta)) #add to station dim
   
   if (adp@metadata$source == 'raw'){
     # Assign data values to the variables
