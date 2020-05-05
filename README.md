@@ -35,6 +35,11 @@ File types for which support is unknown:
     library(devtools)
     install_github("hhourston/mooredDataProcessing_adcp", ref="master")
   
+  To update `ADCP` (and other R packages) in R:
+  
+    library(devtools)
+    update_packages()
+  
 ## Documentation of dependencies
   `oce`: https://cran.r-project.org/web/packages/oce/oce.pdf \
   `ncdf4`: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
