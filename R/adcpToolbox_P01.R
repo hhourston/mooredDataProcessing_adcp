@@ -288,7 +288,7 @@ limit_depthbytime <- function(adp, tz = 'UTC'){
 #'@family processing
 #'
 #'@description Function limits variable (time, salinity, pressure, temperature,
-#'  pitch, roll, heading) from before deployment and after recovery of ADCP
+#'  pitch, roll, heading, soundspeed) from before deployment and after recovery of ADCP
 #'
 #'@param x adp object from oce-class adp
 #'@param tz time zone, default is 'UTC'
@@ -359,6 +359,7 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
       x[['pitch']][t < t1] <- NA
       x[['roll']][t < t1] <- NA
       x[['heading']][t < t1] <- NA
+      x[['soundSpeed']][t < t1] <- NA
       
       if (x[['instrumentSubtype']] == 'Sentinel V'){
         x[['vv']][t < t1] <- NA
@@ -384,6 +385,7 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
       x[['pitch']][t > t2] <- NA
       x[['roll']][t > t2] <- NA
       x[['heading']][t > t2] <- NA
+      x[['soundSpeed']][t > t2] <- NA
       
       if (x[['instrumentSubtype']] == 'Sentinel V'){
           x[['vv']][t > t2] <- NA
@@ -404,6 +406,7 @@ limit_time <- function(x, tz = 'UTC', dt = x[['time_coverage_start']], rt = x[['
         x[['pitch']][t > t2] <- NA
         x[['roll']][t > t2] <- NA
         x[['heading']][t > t2] <- NA
+        x[['soundSpeed']][t > t2] <- NA
         
         if (x[['instrumentSubtype']] == 'Sentinel V'){
           x[['vv']][t > t2] <- NA
@@ -769,7 +772,7 @@ oceNc_create <- function(adp, name, metadata){
   ####setting dimensions and definitions####
   #dimension variables from adp object
   time <- as.POSIXct(adp[['time']], tz = 'UTC', origin = '1970-01-01 00:00:00')
-  dist <- adp[['distance', 'numeric']]
+  dist <- round(adp[['distance', 'numeric']], digits = 2)
   lon <- adp[['longitude']]
   lat <- adp[['latitude']]
   
@@ -779,10 +782,11 @@ oceNc_create <- function(adp, name, metadata){
   #create dimensions
   timedim <- ncdim_def("time", "seconds since 1970-01-01T00:00:00Z", as.double(time))    #time formatting FIX
   distdim <- ncdim_def("distance", "metres", as.double(dist), longname = "bin_distances_from_ADCP_transducer_along_measurement_axis")
-  stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
+  #stationdim <- ncdim_def("station", "", as.numeric(adp[['station_number']])) # Station_number changed from mooring_number by H.Hourston June 26, 2019
+  stationdim <- ncdim_def("station", "", adp[['station']]) #station name; need to make a vector?
   londim <- ncdim_def("lon", "degrees_east" , as.double(lon))
   latdim <- ncdim_def("lat", "degrees_north", as.double(lat))
-  dimnchar <- ncdim_def('nchar', '', 1:100, create_dimvar = FALSE) # Set maximum character value length; it is 100 characters here. Names longer than 100 letters will be truncated
+  dimnchar <- ncdim_def('nchar', '', 1:100, create_dimvar = FALSE) # Set maximum character value length, 100 characters here. Names longer than 100 letters will be truncated. Formerly max=24 char
   
   #set fill value
   FillValue <- 1e35
@@ -804,124 +808,124 @@ oceNc_create <- function(adp, name, metadata){
     lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = stationdim, prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
-    u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "northward_sea_water_velocity" 
-    v_def <- ncvar_def('LCNSAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    v_def <- ncvar_def('LCNSAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "upward_sea_water_velocity"
-    w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
-    t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim, stationdim), FillValue, dlname, prec = 'double')
+    t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim), FillValue, dlname, prec = 'double')
     
     dlname <- "error_velocity_in_sea_water"
-    e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_1"
-    b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_2"
-    b2_def <- ncvar_def('TNIHCE02', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    b2_def <- ncvar_def('TNIHCE02', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_3"
-    b3_def <- ncvar_def('TNIHCE03', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    b3_def <- ncvar_def('TNIHCE03', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_4"
-    b4_def <- ncvar_def('TNIHCE04', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    b4_def <- ncvar_def('TNIHCE04', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_1"
-    cm1_def <- ncvar_def("CMAGZZ01", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm1_def <- ncvar_def("CMAGZZ01", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_2"
-    cm2_def <- ncvar_def("CMAGZZ02", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm2_def <- ncvar_def("CMAGZZ02", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_3"
-    cm3_def <- ncvar_def("CMAGZZ03", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm3_def <- ncvar_def("CMAGZZ03", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_correlation_magnitude_beam_4"
-    cm4_def <- ncvar_def("CMAGZZ04", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+    cm4_def <- ncvar_def("CMAGZZ04", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "pitch"
-    p_def <- ncvar_def('PTCHGP01', "degrees", list( timedim,  stationdim), FillValue, dlname, prec = "float")
+    p_def <- ncvar_def('PTCHGP01', "degrees", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- 'roll'
-    r_def <- ncvar_def('ROLLGP01', "degrees", list(  timedim, stationdim ), FillValue, dlname, prec = "float")
+    r_def <- ncvar_def('ROLLGP01', "degrees", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "height of sea surface"
-    hght_def <- ncvar_def('DISTTRAN', "m", list(  distdim, stationdim ), FillValue, dlname, prec = "float")
+    hght_def <- ncvar_def('DISTTRAN', "m", list(distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP Transducer Temp."
-    te90_def <- ncvar_def('TEMPPR01', "degrees celsius", list(timedim, stationdim), FillValue, dlname, prec = "float")
+    te90_def <- ncvar_def('TEMPPR01', "degrees celsius", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "instrument depth"
-    D_def <- ncvar_def('PPSAADCP', "m", list(timedim, stationdim), FillValue, dlname, prec = "float")
+    D_def <- ncvar_def('PPSAADCP', "m", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "heading"
-    head_def <- ncvar_def('HEADCM01', "degrees", list(timedim, stationdim), FillValue, dlname, prec = "float")
+    head_def <- ncvar_def('HEADCM01', "degrees", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "pressure"
-    pres_def <- ncvar_def('PRESPR01', "decibars", list(timedim, stationdim), FillValue, dlname, prec = "float")
+    pres_def <- ncvar_def('PRESPR01', "decibars", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "speed of sound"
-    svel_def <- ncvar_def('SVELCV01', "m/sec", list(timedim, stationdim), FillValue, dlname, prec = "float")
+    svel_def <- ncvar_def('SVELCV01', "m/sec", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "DTUT8601"
     ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, prec = "char")
     
     ###H.Hourston Feb 13, 2020: Add character-type variables
     dlname <- 'filename'
-    fn_def <- ncvar_def(name = dlname, units = "", dim = list(dimnchar, stationdim), prec = 'char') #optional "longname" argument omitted
+    fn_def <- ncvar_def(name = dlname, units = "", dim = list(dimnchar), prec = 'char') #optional "longname" argument omitted
     
     dlname <- "instrument_model"
-    im_def <- ncvar_def("instrument_model", units = "", dim = list(dimnchar, stationdim), prec = "char") #shouldn't have fillvalue
+    im_def <- ncvar_def("instrument_model", units = "", dim = list(dimnchar), prec = "char") #shouldn't have fillvalue
     
     dlname <- "instrument_serial_number"
-    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = list(dimnchar, stationdim), prec = "char") #shouldn't have fillvalue
+    isn_def <- ncvar_def("instrument_serial_number", units = "", dim = list(dimnchar), prec = "char") #shouldn't have fillvalue
 
     #H.Hourston Aug 29, 2019: Encountered a Sentinel V instrument without percent good data, so omit if the case
     if (adp[['instrumentSubtype']] !='Sentinel V'){
       dlname <- "percent_good_beam_1"
-      pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      pg1_def <- ncvar_def('PCGDAP00', "percent", list(timedim, distdim), FillValue, dlname, prec = "float")
       
       dlname <- "percent_good_beam_2"
-      pg2_def <- ncvar_def('PCGDAP02', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      pg2_def <- ncvar_def('PCGDAP02', "percent", list(timedim, distdim), FillValue, dlname, prec = "float")
       
       dlname <- "percent_good_beam_3"
-      pg3_def <- ncvar_def('PCGDAP03', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      pg3_def <- ncvar_def('PCGDAP03', "percent", list(timedim, distdim), FillValue, dlname, prec = "float")
       
       dlname <- "percent_good_beam_4"
-      pg4_def <- ncvar_def('PCGDAP04', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      pg4_def <- ncvar_def('PCGDAP04', "percent", list(timedim, distdim), FillValue, dlname, prec = "float")
       
     } else {
       warning('No percent good data (g) detected; percent good variables will not be created.')
       
       #H.Hourston Jan 6, 2020: Sentinel V ADCPs have vv, va, vg, and vq variables
       dlname <- "vertical_beam_sea_water_velocity"
-      vb_v_def <- ncvar_def('', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      vb_v_def <- ncvar_def('', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
 
       dlname <- "vertical_beam_amplitude"
-      vb_a_def <- ncvar_def('', "m", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      vb_a_def <- ncvar_def('', "m", list(timedim, distdim), FillValue, dlname, prec = "float")
       
       dlname <- "vertical_beam_ADCP_correlation_magnitude"
-      vb_cm_def <- ncvar_def("", "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+      vb_cm_def <- ncvar_def("", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
       
       if (length(adp[['vg']]) != 0){ #fortune file did not have vg values but it did have a vg variable
         dlname <- "vertical_beam_percent_good"
-        vb_pg_def <- ncvar_def('', "percent", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+        vb_pg_def <- ncvar_def('', "percent", list(timedim, distdim), FillValue, dlname, prec = "float")
       }
     }
     
     FillValue <- 0
     
     dlname <- "quality flag for LCEWAP01"
-    qc_u_def <- ncvar_def("LCEWAP01_QC", "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
+    qc_u_def <- ncvar_def("LCEWAP01_QC", "", list(timedim, distdim), FillValue, dlname, prec = "integer")
     
     dlname <- "quality flag for LCNSAP01"
-    qc_v_def <- ncvar_def('LCNSAP01_QC', "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
+    qc_v_def <- ncvar_def('LCNSAP01_QC', "", list(timedim, distdim), FillValue, dlname, prec = "integer")
     
     dlname <- "quality flag for LRZAAP01"
-    qc_w_def <- ncvar_def('LRZAAP01_QC', "", list(timedim, distdim, stationdim), FillValue, dlname, prec = "integer")
+    qc_w_def <- ncvar_def('LRZAAP01_QC', "", list(timedim, distdim), FillValue, dlname, prec = "integer")
     
     
     ####writing net CDF####
@@ -1024,9 +1028,9 @@ oceNc_create <- function(adp, name, metadata){
     
     ncvar_put(ncout, p_def, adp[['pitch']])
     ncvar_put(ncout, r_def, adp[['roll']]*(180/pi))
-    ncvar_put(ncout, hght_def, (adp[['distance']] - adp[['sensor_depth']]))
+    ncvar_put(ncout, hght_def, (round(adp[['distance']] - adp[['sensor_depth']])), digits = 2)
     ncvar_put(ncout, te90_def, adp[['temperature']])
-    ncvar_put(ncout, D_def, adp[['depth']])
+    ncvar_put(ncout, D_def, round(adp[['depth']], digits = 2))
     ncvar_put(ncout, qc_u_def, adp@metadata$flags$v[,,1])
     ncvar_put(ncout, qc_v_def, adp@metadata$flags$v[,,2])
     ncvar_put(ncout, qc_w_def, adp@metadata$flags$v[,,3])
@@ -1093,8 +1097,8 @@ oceNc_create <- function(adp, name, metadata){
   }
   # End cleaning description
   end_cleaning_description <- sprintf('The leading %s ensembles and the trailing %s ensembles were removed from the data set.', adp[['cut_lead_ensembles']], adp[['cut_trail_ensembles']])
-  # Append the processing and end cleaning descriptions to the existing history from the metadata file
-  adp <- oceSetMetadata(adp, 'history', paste(adp[['history']], processing_description, end_cleaning_description))
+  # Append the processing and end cleaning descriptions to the existing processing history from the metadata file
+  adp <- oceSetMetadata(adp, 'processing_history', paste(adp[['processing_history']], processing_description, end_cleaning_description))
   
   if (adp@metadata$source == 'raw'){
     
@@ -2297,10 +2301,10 @@ adpNC <- function(adp, name){
   #####define variables####
   
   dlname <- 'lon'
-  lon_def <- ncvar_def(longname= "longitude", units = 'degrees_east', dim = stationdim, name = 'LONZZ01', prec = 'double')
+  lon_def <- ncvar_def(longname= "longitude", units = 'degree_east', dim = stationdim, name = 'LONZZ01', prec = 'double')
   
   dlname <- 'lat'
-  lat_def <- ncvar_def( longname = 'latitude', units = 'degrees_north', dim =  stationdim, name = 'LATZZ01', prec = 'double')
+  lat_def <- ncvar_def( longname = 'latitude', units = 'degree_north', dim =  stationdim, name = 'LATZZ01', prec = 'double')
   
   dlname <- "eastward_sea_water_velocity"
   u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
