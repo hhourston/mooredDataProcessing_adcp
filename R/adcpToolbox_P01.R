@@ -1276,13 +1276,19 @@ oceNc_create <- function(adp, name, metadata){
     }
     
     # comment, flag_meanings, flag_values, References
-    for (var in c('LCEWAP01', 'LCNSAP01', 'LRZAAP01', 'LCEWAP01_QC', 'LCNSAP01_QC', 'LRZAAP01_QC', 'PRESPR01', 'PRESPR01_QC')){
+    for (var in c('LCEWAP01', 'LCNSAP01', 'LRZAAP01', 'LCEWAP01_QC', 'LCNSAP01_QC', 'LRZAAP01_QC')){
       ncatt_put(ncout, var, "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset")
       ncatt_put(ncout, var, "flag_meanings",adp[['flag_meaning']])
       ncatt_put(ncout, var, "flag_values",adp[['flag_values']])
       ncatt_put(ncout, var, "References", adp[['flag_references']])
     }
-
+    for (var in c('PRESPR01', 'PRESPR01_QC')){
+      ncatt_put(ncout, var, "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset and identification of negative pressure values")
+      ncatt_put(ncout, var, "flag_meanings",adp[['flag_meaning']])
+      ncatt_put(ncout, var, "flag_values",adp[['flag_values']])
+      ncatt_put(ncout, var, "References", adp[['flag_references']])
+    }
+    
     # BODC P01 names
     # H.Hourston June 26, 2019: Change all IODC GF3 variable names to P01 variable names in a copy
     # ^see adcpToolbox_GF3.R version for original GF3 names
