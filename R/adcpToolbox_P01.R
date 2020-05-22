@@ -936,6 +936,8 @@ oceNc_create <- function(adp, name, metadata){
     dlname <- "quality flag for LRZAAP01"
     qc_w_def <- ncvar_def('LRZAAP01_QC', "", list(timedim, distdim), FillValue, dlname, prec = "integer")
     
+    dlname <- "quality flag for PRESPR01"
+    qc_pres_def <- ncvar_def('PRESPR01_QC', "", list(timedim), FillValue, dlname, prec = "integer")
     
     ####writing net CDF####
     #write out definitions to new nc file
@@ -944,12 +946,12 @@ oceNc_create <- function(adp, name, metadata){
       ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, vb_v_def, 
                                        vb_a_def, vb_cm_def, vb_pg_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, 
                                        qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, 
-                                       svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+                                       qc_pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
     } else { #NOT SENTINEL V
       ncout <- nc_create(ncfname, list(fn_def, u_def, v_def, w_def, e_def, t_def, b1_def, b2_def, b3_def, b4_def, pg1_def, 
                                        pg2_def, pg3_def, pg4_def, p_def, r_def, hght_def, te90_def, D_def, im_def, isn_def, 
                                        qc_u_def, qc_v_def, qc_w_def, lon_def, lat_def, lon2_def, lat2_def, head_def, pres_def, 
-                                       svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
+                                       qc_pres_def, svel_def, ts_def, cm1_def, cm2_def, cm3_def, cm4_def), force_v4 = TRUE)
       print('Created netCDF object')
     }  
   }
@@ -1046,6 +1048,7 @@ oceNc_create <- function(adp, name, metadata){
     ncvar_put(ncout, qc_w_def, adp@metadata$flags$v[,,3])
     ncvar_put(ncout, head_def, adp[['heading']])
     ncvar_put(ncout, pres_def, adp[['pressure']])
+    ncvar_put(ncout, qc_pres_def, adp[['PRESPR01_QC']]
     ncvar_put(ncout, svel_def, adp[['soundSpeed']])
     ncvar_put(ncout, ts_def, adp[['time']])
     
@@ -1237,6 +1240,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'LCEWAP01', 'ancillary_variables', 'LCEWAP01_QC')
     ncatt_put(ncout, 'LCNSAP01', 'ancillary_variables', 'LCNSAP01_QC')
     ncatt_put(ncout, 'LRZAAP01', 'ancillary_variables', 'LRZAAP01_QC')
+    ncatt_put(ncout, 'PRESPR01', 'ancillary_variables', 'PRESPR01_QC')
     
     # Generic_name attribute
     ncatt_put(ncout, 'LCEWAP01', "generic_name", "u")
@@ -1278,7 +1282,13 @@ oceNc_create <- function(adp, name, metadata){
       ncatt_put(ncout, var, "flag_values",adp[['flag_values']])
       ncatt_put(ncout, var, "References", adp[['flag_references']])
     }
-
+    for (var in c('PRESPR01', 'PRESPR01_QC')){
+      ncatt_put(ncout, var, "comment", "Quality flag resulting from cleaning of the beginning and end of the dataset and identification of negative pressure values")
+      ncatt_put(ncout, var, "flag_meanings",adp[['flag_meaning']])
+      ncatt_put(ncout, var, "flag_values",adp[['flag_values']])
+      ncatt_put(ncout, var, "References", adp[['flag_references']])
+    }
+    
     # BODC P01 names
     # H.Hourston June 26, 2019: Change all IODC GF3 variable names to P01 variable names in a copy
     # ^see adcpToolbox_GF3.R version for original GF3 names
@@ -1640,6 +1650,8 @@ oceNc_create <- function(adp, name, metadata){
   ncatt_put(ncout, 'LCNSAP01_QC', "data_min", min(adp[['flags']][['v']][,,2], na.rm = TRUE))
   ncatt_put(ncout, 'LRZAAP01_QC', "data_max", max(adp[['flags']][['v']][,,3], na.rm = TRUE))
   ncatt_put(ncout, 'LRZAAP01_QC', "data_min", min(adp[['flags']][['v']][,,3], na.rm = TRUE))
+  ncatt_put(ncout, 'PRESPR01_QC', "data_max", max(adp[['PRESPR01_QC']], na.rm = TRUE))
+  ncatt_put(ncout, 'PRESPR01_QC', "data_min", min(adp[['PRESPR01_QC']], na.rm = TRUE))
   
   if(adp@metadata$source == 'raw'){
     ncatt_put(ncout, 'TNIHCE01', "data_min", min(adp[['a', 'numeric']][,,1], na.rm= TRUE))
