@@ -34,7 +34,8 @@ File types for which support is unknown:
   
    Note: To update `ADCP` (and other R packages) in R with `devtools`: \
     `update_packages()`  
-
+\
+\
 Alternative method for installing `ADCP` using command line:  
     `git clone https://github.com/hhourston/ADCP_processing_visualization.git`  
 
@@ -45,15 +46,15 @@ Alternative method for installing `ADCP` using command line:
   `ADCP` was created by Emily Chisholm (https://github.com/Echisholm21).
 
 ## Helpful links
-Documentation: \
-* `oce` documentation: https://cran.r-project.org/web/packages/oce/oce.pdf \
-* `ncdf4` documentation: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf \
+Documentation:
+* `oce` documentation: https://cran.r-project.org/web/packages/oce/oce.pdf
+* `ncdf4` documentation: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 * netCDF documentation: https://www.unidata.ucar.edu/software/netcdf/docs/index.html 
 
-Conventions: \
-* BODC SeaDataNet quality flags: https://www.bodc.ac.uk/data/documents/series/37006/#QCflags \
-* BODC SeaDataNet P01 vocabulary search: http://seadatanet.maris2.nl/v_bodc_vocab_v2/search.asp?lib=p01&screen=0 \
-* GF3 codes (no longer maintained): https://www.nodc.noaa.gov/woce/woce_v3/wocedata_1/sss/documents/liste_param.htm \
+Conventions:
+* BODC SeaDataNet quality flags: https://www.bodc.ac.uk/data/documents/series/37006/#QCflags
+* BODC SeaDataNet P01 vocabulary search: http://seadatanet.maris2.nl/v_bodc_vocab_v2/search.asp?lib=p01&screen=0
+* GF3 codes (no longer maintained): https://www.nodc.noaa.gov/woce/woce_v3/wocedata_1/sss/documents/liste_param.htm
 * CF Conventions: http://cfconventions.org/standard-names.html 
 
 
