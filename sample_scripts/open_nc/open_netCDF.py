@@ -1,11 +1,11 @@
 import xarray as xr
 
-f = 'your_file_name.nc'
+f = './sample_nc/a1_20050503_20050504_0221m.adcp.L1.nc'
 
-d = xr.open_dataset(f)
+ncdata = xr.open_dataset(f)
 
-# Can access variables and metadata in the netCDF using d.YOUR_VARIABLE.COMPONENT
-# Use tab key to view options for YOUR_VARIABLE and COMPONENT
+# Can access variables and metadata in the netCDF using ncdata.YOUR_VARIABLE.ATTRIBUTE
+# Use tab key to view options for YOUR_VARIABLE and ATTRIBUTE
 
-# Close d
-xr.Dataset.close(d)
+# Close ncdata
+xr.Dataset.close(ncdata)

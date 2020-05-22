@@ -2,11 +2,12 @@
 
 library(ncdf4)
 
-#The first file to do
-ncin1 <- nc_open('D:/ADCP_processing/ADCP/a1_20160713_20170513_0480m/a1_20160713_20170513_0480m_.adcp.L1.nc', write=FALSE, readunlim = FALSE, verbose=FALSE)
+# Open a netCDF file
+nc_file = './sample_nc/a1_20050503_20050504_0221m.adcp.L1.nc'
+ncin <- nc_open(nc_file, write=FALSE, readunlim = FALSE, verbose=FALSE)
 
-View(ncin1)
+View(ncin)
 
-ncin1
+ncin
 
-nc_close(ncin1)
+nc_close(ncin)
