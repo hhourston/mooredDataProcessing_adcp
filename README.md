@@ -18,37 +18,36 @@ File types for which support is unknown:
 - ".666" (same file format as ".000" and ".664")
 
 ## Installation
-  To install dependencies in R:
-  
-    install.packages("devtools")
-    install.packages("testthat")
-    install.packages("gsw")
+1. Open R and install `ADCP` dependencies:
+    install.packages(c("devtools", "testthat", "gsw", "ncdf4", "maps"))
+    library(devtools)
     install_github("dankelley/oce", ref="develop")
     install_github("dankelley/ocedata", ref="master")
-    install.packages("ncdf4")
-    install.packages("maps")
   
-  The `oce` "develop" version is installed because it uses the 13th generation of the International Geomagnetic Reference Field (IGRF-13) for magnetic field calculations while the "master" version still uses IGRF-12. See https://github.com/dankelley/oce/issues/1473 for more.
+  Note: The `oce` "develop" version is installed because it uses the 13th generation of the International Geomagnetic Reference Field (IGRF-13) for magnetic field calculations while the "master" version still uses IGRF-12. See https://github.com/dankelley/oce/issues/1473 for more.
   
-  To install `ADCP` in R:
-  
-    library(devtools)
+2. Install `ADCP` from R
     install_github("hhourston/mooredDataProcessing_adcp", ref="master")
   
-  To update `ADCP` (and other R packages) in R:
-  
-    library(devtools)
+  Note: To update `ADCP` (and other R packages) in R with `devtools`: 
     update_packages()
-  
-## Documentation of dependencies
-  `oce`: https://cran.r-project.org/web/packages/oce/oce.pdf \
-  `ncdf4`: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf
 
 ## Usage
-  Please see the repository https://github.com/hhourston/ADCP_processing_visualization for usage instructions. A sample script called *ADCP_lvl1_process.R* that makes use of this package can be found in this repository along with a csv metadata template, a sample raw file, filled-out csv metadata file and output netCDF file, and R and Python scripts for viewing and plotting netCDF file data.
-  
-  A version of this script that is callable from Python can be found at https://github.com/hhourston/ADCP_processing_visualization/tree/master/callR_fromPython. A sample Python script that runs this R script can also be found in that folder. Usage instructions can be found in https://github.com/hhourston/ADCP_processing_visualization.
+  Please see the the *sample_scripts* folder for processing scripts, and the *sample_data* folder for a sample raw ADCP file and filled-out metadata file.
   
 ## Credits
   `ADCP` was created by Emily Chisholm (https://github.com/Echisholm21).
-  
+
+## Helpful links
+Documentation: \
+  `oce` documentation: https://cran.r-project.org/web/packages/oce/oce.pdf \
+  `ncdf4` documentation: https://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf \
+  netCDF documentation: https://www.unidata.ucar.edu/software/netcdf/docs/index.html \
+
+Conventions: \
+  BODC SeaDataNet quality flags: https://www.bodc.ac.uk/data/documents/series/37006/#QCflags \
+  BODC SeaDataNet P01 vocabulary search: http://seadatanet.maris2.nl/v_bodc_vocab_v2/search.asp?lib=p01&screen=0 \
+  GF3 codes (no longer maintained): https://www.nodc.noaa.gov/woce/woce_v3/wocedata_1/sss/documents/liste_param.htm \
+  CF Conventions: http://cfconventions.org/standard-names.html \
+
+
