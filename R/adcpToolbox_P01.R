@@ -817,19 +817,19 @@ oceNc_create <- function(adp, name, metadata){
     lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = list(), prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
-    u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "northward_sea_water_velocity" 
-    v_def <- ncvar_def('LCNSAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "upward_sea_water_velocity"
-    w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
     t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim), FillValue, dlname, prec = 'double')
     
     dlname <- "error_velocity_in_sea_water"
-    e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_1"
     b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -877,7 +877,7 @@ oceNc_create <- function(adp, name, metadata){
     pres_def <- ncvar_def('PRESPR01', "decibars", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "speed of sound"
-    svel_def <- ncvar_def('SVELCV01', "m/sec", list(timedim), FillValue, dlname, prec = "float")
+    svel_def <- ncvar_def('SVELCV01', "m/s", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "DTUT8601"
     ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, prec = "char")
@@ -911,7 +911,7 @@ oceNc_create <- function(adp, name, metadata){
       
       #H.Hourston Jan 6, 2020: Sentinel V ADCPs have vv, va, vg, and vq variables
       dlname <- "vertical_beam_sea_water_velocity"
-      vb_v_def <- ncvar_def('', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+      vb_v_def <- ncvar_def('', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
 
       dlname <- "vertical_beam_amplitude"
       vb_a_def <- ncvar_def('', "m", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -966,19 +966,19 @@ oceNc_create <- function(adp, name, metadata){
     lat_def <- ncvar_def( longname = 'latitude', units = 'degrees_north', dim = list(), name = dlname, prec = 'double')
     
     dlname <- "eastward_sea_water_velocity"
-    u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "northward_sea_water_velocity"
-    v_def <- ncvar_def('LCNSAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "upward_sea_water_velocity"
-    w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
     t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim), FillValue, dlname, prec = "double")
     
     dlname <- "error_velocity_in_sea_water"
-    e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim), FillValue, dlname, prec = "float")
+    e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_1"
     b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -1137,7 +1137,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "valid_correlation_range", adp[['lowCorrThresh']])
     ncatt_put(ncout, 0, "minmax_percent_good", adp[['percentGdMinimum']])
     ncatt_put(ncout, 0, "minmax_percent_good", "100")
-    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/sec'))
+    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']]*100)
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
     ncatt_put(ncout, 0, "data_type", adp[['instrumentType']])
@@ -1154,7 +1154,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "_FillValue", "1e35")
     # H.Hourston Feb 13, 2020: Change featureType to be hardcoded in
     ncatt_put(ncout, 0, "featureType", 'profileTimeSeries') #link to oce object? ..... if adp == timeSeriesProfile
-    ncatt_put(ncout, 0, 'Conventions', 'CF-1.9')
+    ncatt_put(ncout, 0, 'Conventions', 'CF-1.8')
     ncatt_put(ncout, 0, "creator_type", "person") 
     ncatt_put(ncout, 0, "sea_name", adp[['sea_name']])
     ncatt_put(ncout, 0, "time_coverage_start", adp[['time_coverage_start']])
@@ -2329,19 +2329,19 @@ adpNC <- function(adp, name){
   lat_def <- ncvar_def( longname = 'latitude', units = 'degree_north', dim =  stationdim, name = 'LATZZ01', prec = 'double')
   
   dlname <- "eastward_sea_water_velocity"
-  u_def <- ncvar_def('LCEWAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "northward_sea_water_velocity"
-  v_def <- ncvar_def('LCNSAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "upward_sea_water_velocity"
-  w_def <- ncvar_def('LRZAAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "time_02"
   t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list( stationdim, timedim), FillValue, dlname, prec = "double")
   
   dlname <- "error_velocity_in_sea_water"
-  e_def <- ncvar_def('LERRAP01', "m/sec", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_echo_intensity_beam_1"
   b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
