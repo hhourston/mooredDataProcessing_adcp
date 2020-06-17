@@ -817,19 +817,19 @@ oceNc_create <- function(adp, name, metadata){
     lat2_def <- ncvar_def(name = dlname, units = 'degrees_north', dim = list(), prec = 'double')
     
     dlname <- "eastward_sea_water_velocity" 
-    u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    u_def <- ncvar_def('LCEWAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "northward_sea_water_velocity" 
-    v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    v_def <- ncvar_def('LCNSAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "upward_sea_water_velocity"
-    w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    w_def <- ncvar_def('LRZAAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
     t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim), FillValue, dlname, prec = 'double')
     
     dlname <- "error_velocity_in_sea_water"
-    e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    e_def <- ncvar_def('LERRAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_1"
     b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -856,28 +856,28 @@ oceNc_create <- function(adp, name, metadata){
     cm4_def <- ncvar_def("CMAGZZ04", "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "pitch"
-    p_def <- ncvar_def('PTCHGP01', "degrees", list(timedim), FillValue, dlname, prec = "float")
+    p_def <- ncvar_def('PTCHGP01', "degree", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- 'roll'
-    r_def <- ncvar_def('ROLLGP01', "degrees", list(timedim), FillValue, dlname, prec = "float")
+    r_def <- ncvar_def('ROLLGP01', "degree", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "height of sea surface"
     hght_def <- ncvar_def('DISTTRAN', "m", list(distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP Transducer Temp."
-    te90_def <- ncvar_def('TEMPPR01', "degrees celsius", list(timedim), FillValue, dlname, prec = "float")
+    te90_def <- ncvar_def('TEMPPR01', "degree_c", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "instrument depth"
     D_def <- ncvar_def('PPSAADCP', "m", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "heading"
-    head_def <- ncvar_def('HEADCM01', "degrees", list(timedim), FillValue, dlname, prec = "float")
+    head_def <- ncvar_def('HEADCM01', "degree", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "pressure"
     pres_def <- ncvar_def('PRESPR01', "decibars", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "speed of sound"
-    svel_def <- ncvar_def('SVELCV01', "m/s", list(timedim), FillValue, dlname, prec = "float")
+    svel_def <- ncvar_def('SVELCV01', "m s-1", list(timedim), FillValue, dlname, prec = "float")
     
     dlname <- "DTUT8601"
     ts_def <- ncvar_def("DTUT8601", units = "", dim = list(dimnchar, timedim), missval = NULL, prec = "char")
@@ -911,7 +911,7 @@ oceNc_create <- function(adp, name, metadata){
       
       #H.Hourston Jan 6, 2020: Sentinel V ADCPs have vv, va, vg, and vq variables
       dlname <- "vertical_beam_sea_water_velocity"
-      vb_v_def <- ncvar_def('', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+      vb_v_def <- ncvar_def('', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
 
       dlname <- "vertical_beam_amplitude"
       vb_a_def <- ncvar_def('', "m", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -966,19 +966,19 @@ oceNc_create <- function(adp, name, metadata){
     lat_def <- ncvar_def( longname = 'latitude', units = 'degrees_north', dim = list(), name = dlname, prec = 'double')
     
     dlname <- "eastward_sea_water_velocity"
-    u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    u_def <- ncvar_def('LCEWAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "northward_sea_water_velocity"
-    v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    v_def <- ncvar_def('LCNSAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "upward_sea_water_velocity"
-    w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    w_def <- ncvar_def('LRZAAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "time_02"
     t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list(timedim), FillValue, dlname, prec = "double")
     
     dlname <- "error_velocity_in_sea_water"
-    e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim), FillValue, dlname, prec = "float")
+    e_def <- ncvar_def('LERRAP01', "m s-1", list(timedim, distdim), FillValue, dlname, prec = "float")
     
     dlname <- "ADCP_echo_intensity_beam_1"
     b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim), FillValue, dlname, prec = "float")
@@ -1137,7 +1137,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "valid_correlation_range", adp[['lowCorrThresh']])
     ncatt_put(ncout, 0, "minmax_percent_good", adp[['percentGdMinimum']])
     ncatt_put(ncout, 0, "minmax_percent_good", "100")
-    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
+    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm s-1'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']]*100)
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
     ncatt_put(ncout, 0, "data_type", adp[['instrumentType']])
@@ -1455,8 +1455,9 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 'latitude', "standard_name", "latitude")
     ncatt_put(ncout, 'longitude', "standard_name", "longitude")
     ncatt_put(ncout, 'PPSAADCP', "standard_name", "instrument_depth")
-    ncatt_put(ncout, 'PTCHGP01', "standard_name", "platform_pitch_angle")
-    ncatt_put(ncout, 'ROLLGP01', "standard_name", "platform_roll_angle")
+    ncatt_put(ncout, 'PTCHGP01', "standard_name", "platform_pitch")
+    ncatt_put(ncout, 'ROLLGP01', "standard_name", "platform_roll")
+    ncatt_put(ncout, 'HEADCM01', 'standard_name', "platform_orientation")
     ncatt_put(ncout, 'PRESPR01', "standard_name", "sea_water_pressure")
     ncatt_put(ncout, 'SVELCV01', "standard_name", "speed_of_sound_in_sea_water")
   }
@@ -1479,7 +1480,7 @@ oceNc_create <- function(adp, name, metadata){
     ncatt_put(ncout, 0, "valid_correlation_range", adp[['lowCorrThresh']])
     ncatt_put(ncout, 0, "minmax_percent_good", adp[['percentGdMinimum']])
     ncatt_put(ncout, 0, "minmax_percent_good", "100")
-    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm/s'))
+    ncatt_put(ncout, 0, "error_velocity_threshold", paste(adp[['errorVelocityMaximum']], 'm s-1'))
     ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['xmitPulseLength']])
     ncatt_put(ncout, 0, "false_target_reject_values", adp[['falseTargetThresh']])
     ncatt_put(ncout, 0, "instrument_serial_number", adp[['serialNumber']])
@@ -2329,19 +2330,19 @@ adpNC <- function(adp, name){
   lat_def <- ncvar_def( longname = 'latitude', units = 'degree_north', dim =  stationdim, name = 'LATZZ01', prec = 'double')
   
   dlname <- "eastward_sea_water_velocity"
-  u_def <- ncvar_def('LCEWAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  u_def <- ncvar_def('LCEWAP01', "m s-1", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "northward_sea_water_velocity"
-  v_def <- ncvar_def('LCNSAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  v_def <- ncvar_def('LCNSAP01', "m s-1", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "upward_sea_water_velocity"
-  w_def <- ncvar_def('LRZAAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  w_def <- ncvar_def('LRZAAP01', "m s-1", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "time_02"
   t_def <- ncvar_def("ELTMEP01", "seconds since 1970-01-01T00:00:00Z", list( stationdim, timedim), FillValue, dlname, prec = "double")
   
   dlname <- "error_velocity_in_sea_water"
-  e_def <- ncvar_def('LERRAP01', "m/s", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
+  e_def <- ncvar_def('LERRAP01', "m s-1", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "ADCP_echo_intensity_beam_1"
   b1_def <- ncvar_def('TNIHCE01', "counts", list(timedim, distdim, stationdim), FillValue, dlname, prec = "float")
@@ -2401,7 +2402,7 @@ adpNC <- function(adp, name){
   pres_def <- ncvar_def('PRESPR01', "decibars", list(timedim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "speed of sound"
-  svel_def <- ncvar_def('SVELCV01', "m/s", list(timedim, stationdim), FillValue, dlname, prec = "float")
+  svel_def <- ncvar_def('SVELCV01', "m s-1", list(timedim, stationdim), FillValue, dlname, prec = "float")
   
   dlname <- "time_string"
   ts_def <- ncvar_def("DTUT8601", units = "",dim =  list( dimnchar, timedim), missval = NULL, name =  dlname, prec = "char")
@@ -2467,7 +2468,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 0, 'keywords', 'Oceans > Ocean Circulation > Ocean Currents')
   ncatt_put(ncout, 0, 'keywords_vocabulary', 'GCMD Science Keywords')
   ncatt_put(ncout, 0, 'model', adp[['model']])
-  ncatt_put(ncout, 0, 'sampling_interval', paste(adp[['samplingInterval']], 'm/s'))
+  ncatt_put(ncout, 0, 'sampling_interval', paste(adp[['samplingInterval']], 'm s-1'))
   ncatt_put(ncout, 0, 'standard_name_vocabulary', 'CF v.52')
   ncatt_put(ncout, 0, 'title', adp[['title']])
   #ncatt_put(ncout, 0, 'blanking_distance', adp[['blanking_distance']])
@@ -2502,7 +2503,7 @@ adpNC <- function(adp, name){
   ncatt_put(ncout, 0, "pings_per_ensemble", adp[['pings_per_ensemble']])
   ncatt_put(ncout, 0, "valid_correlation_range", adp[['valid_correlation_range']])
   ncatt_put(ncout, 0,"minmax_percent_good", "0-100")
-  ncatt_put(ncout, 0, "error_velocity_threshold", paste0(adp[['error_velocity_threshold']], "   mm/s"))
+  ncatt_put(ncout, 0, "error_velocity_threshold", paste0(adp[['error_velocity_threshold']], "   mm s-1"))
   ncatt_put(ncout, 0, "transmit_pulse_length_cm", adp[['transmit_pulse_length_cm']])
   ncatt_put(ncout, 0, "false_target_reject_values", adp[['false_target_reject_values']])
   ncatt_put(ncout, 0, "instrument_serial_number", adp[['serial_number']])
@@ -3221,7 +3222,7 @@ flag <- function(adp, values){
 
 plotBin <- function(v, ...){ #vel_char added by H.Hourston June 29, 2019
   for(i in 1:length(v[1, ]))
-    plot(v[,i], xlab = "time (s)", ylab = "m/s", main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']]  - adp[['distance']][i], digits= 0), 'm', sprintf('of %s', vel_char))), type = 'l', ylim = c(-1.5, 1.5), ...)
+    plot(v[,i], xlab = "time (s)", ylab = "m s-1", main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']]  - adp[['distance']][i], digits= 0), 'm', sprintf('of %s', vel_char))), type = 'l', ylim = c(-1.5, 1.5), ...)
 }
 
 
@@ -3452,7 +3453,7 @@ plotQC <- function(obj, QC, ... ){
     uGood <- Good[['v']][,,1]
     
     for(i in 1:length(obj[['v']][1,,1])){
-      plot(uGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of U')), type = 'l', ylim = c(-1.5, 1.5), ...)
+      plot(uGood[,i], xlab = "time (s)", ylab = "m s-1",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of U')), type = 'l', ylim = c(-1.5, 1.5), ...)
       par(new = TRUE)
       plot(uBad[,i], xlab = '', ylab = '', axes = FALSE, col = 'red', type = 'l', ylim = c(-1.5, 1.5))
       par(new = TRUE)
@@ -3469,7 +3470,7 @@ plotQC <- function(obj, QC, ... ){
     vGood <- Good[['v']][,,2]
     
     for(i in 1:length(obj[['v']][1,,1])){
-      plot(vGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of V')), type = 'l', ylim = c(-1.5, 1.5), ...)
+      plot(vGood[,i], xlab = "time (s)", ylab = "m s-1",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of V')), type = 'l', ylim = c(-1.5, 1.5), ...)
       par(new = TRUE)
       plot(vBad[,i], xlab = '', ylab = '', axes = FALSE, col = 'red', type = 'l', ylim = c(-1.5, 1.5))
       par(new = TRUE)
@@ -3486,7 +3487,7 @@ plotQC <- function(obj, QC, ... ){
     wGood <- Good[['v']][,,3]
     
     for(i in 1:length(obj[['v']][1,,1])){
-      plot(wGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of W')), type = 'l', ylim = c(-1.5, 1.5), ...)
+      plot(wGood[,i], xlab = "time (s)", ylab = "m s-1",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of W')), type = 'l', ylim = c(-1.5, 1.5), ...)
       par(new = TRUE)
       plot(wBad[,i], xlab = '', ylab = '', axes = FALSE, col = 'red', type = 'l', ylim = c(-1.5, 1.5))
       par(new = TRUE)
@@ -3503,7 +3504,7 @@ plotQC <- function(obj, QC, ... ){
     erGood <- Good[['v']][,,4]
     
     for(i in 1:length(obj[['v']][1,,1])){
-      plot(erGood[,i], xlab = "time (s)", ylab = "m/s",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of LERRAP01')), type = 'l', ylim = c(-4, 4), ...)
+      plot(erGood[,i], xlab = "time (s)", ylab = "m s-1",  main = (paste( "Bin", i, ": Depth", round(adp[['depthMean']] - adp[['distance']][i], digits= 0), 'm, of LERRAP01')), type = 'l', ylim = c(-4, 4), ...)
       par(new = TRUE)
       plot(erBad[,i], xlab = '', ylab = '', axes = FALSE, col = 'red', type = 'l', ylim = c(-4, 4))
       par(new = TRUE)
@@ -3574,18 +3575,18 @@ startPlots <- function(adp, path){
   #general first look plots
   pdf(file = paste0(path, '/PreProcessingPlots.pdf'))
   plot(adp, which = 1, title = 'LCEWAP01: PreProcessing')  #u
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   plot(adp, which = 2, title = 'LCNSAP01: PreProcessing')  #v
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   plot(adp, which = 3, title = 'LRZAAP01: PreProcessing')  #w
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity preprocessing plot')
   } else {
     plot(adp, which = 4, title = 'LERRAP01: PreProcessing')  #error
-    mtext('m/s', side = 4)
+    mtext('m s-1', side = 4)
   }
   plot(adp, which = 15, main = 'Pressure: PreProcessing') #pressure
   dev.off()
@@ -3664,18 +3665,18 @@ endPlots <- function(adpClean, path){
   
   #     plot velocity beams
   plot(adpClean, which = 1, title = sprintf('LCEWAP01: PostProcessing L%s', level))
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   plot(adpClean, which = 2, title = sprintf('LCNSAP01: PostProcessing L%s', level))
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   plot(adpClean, which = 3, title = sprintf('LRZAAP01: PostProcessing L%s', level))
-  mtext('m/s', side = 4)
+  mtext('m s-1', side = 4)
   
   # H.Hourston Aug 26, 2019: Some files did not contain values for adp[['v]][,,4] (error velocity)
   if (all(is.na(adp[['v']][,,4]))){
     warning('Error velocity composed of only NAs; skipping error velocity postprocessing plot')
   } else {
     plot(adp, which = 4, title = 'LERRAP01: PreProcessing')  #error
-    mtext('m/s', side = 4)
+    mtext('m s-1', side = 4)
   }
   #     plot echo intensity
   plot_ei(adpClean, main = 'Echo Intensity')
